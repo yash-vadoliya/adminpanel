@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../AuthContext";
 import CONFIG from "../Config";
-import { PencilSquare, Trash } from "react-bootstrap-icons";
+import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
 
 function Promotion() {
   const { token } = useContext(AuthContext);
@@ -9,9 +9,10 @@ function Promotion() {
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingPromotion, setEditingPromotion] = useState(null);
+  const [viewPromotion, setViewPromotion] = useState(null); // 👁️ For viewing details
 
   // ✅ Initial form state
-  const [formData, setFormData] = useState({
+  const initialForm = {
     promotion_title: "",
     promo_type: "",
     discount_value: "",
@@ -22,18 +23,19 @@ function Promotion() {
     per_user_limit: "",
     status: "Active",
     promo_code: "",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialForm);
 
   // ✅ Fetch all promotions
   const fetchPromotions = async () => {
     try {
       setLoading(true);
       const res = await fetch(`${CONFIG.API_BASE_URL}/promotions`, {
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      console.log(data);
-      setPromotions(data[0]);
+      setPromotions(data[0] || []);
     } catch (err) {
       console.error("Error fetching promotions:", err);
     } finally {
@@ -74,7 +76,7 @@ function Promotion() {
         fetchPromotions();
         setShowForm(false);
         setEditingPromotion(null);
-        resetForm();
+        setFormData(initialForm);
       } else {
         console.error("Failed to save promotion");
       }
@@ -83,33 +85,19 @@ function Promotion() {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      promotion_title: "",
-      promo_type: "",
-      discount_value: "",
-      max_discount: "",
-      start_date: "",
-      end_date: "",
-      max_allowed: "",
-      per_user_limit: "",
-      status: "Active",
-      promo_code: "",
-    });
-  };
-
   // ✅ Handle edit
   const handleEdit = (promo) => {
     setEditingPromotion(promo);
     setFormData(promo);
     setShowForm(true);
+    setViewPromotion(null);
   };
 
   // ✅ Handle delete
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this promotion?")) return;
     try {
-      await fetch(`${CONFIG.API_URL}/promotions/${id}`, {
+      await fetch(`${CONFIG.API_BASE_URL}/promotions/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -119,6 +107,12 @@ function Promotion() {
     }
   };
 
+  // ✅ Handle view details
+  const handleView = (promo) => {
+    setViewPromotion(promo);
+    setShowForm(false);
+  };
+
   return (
     <div className="container-fluid">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -126,198 +120,121 @@ function Promotion() {
         <button
           className="btn btn-success"
           onClick={() => {
-            resetForm();
+            setFormData(initialForm);
             setEditingPromotion(null);
             setShowForm(true);
+            setViewPromotion(null);
           }}
         >
           Add Promotion
         </button>
       </div>
 
-      {/* Modal Form */}
+      {/* ✅ FORM SECTION */}
       {showForm && (
-        // <div className="modal d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.5)" }}>
-        //   <div className="modal-dialog modal-lg">
-        //     <div className="modal-content">
-        //       <div className="modal-header bg-success text-white">
-        //         <h5 className="modal-title">
-        //           {editingPromotion ? "Edit Promotion" : "Add Promotion"}
-        //         </h5>
-        //         <button
-        //           type="button"
-        //           className="btn-close"
-        //           onClick={() => setShowForm(false)}
-        //         ></button>
-        //       </div>
+        <div className="card p-3 shadow-sm">
+          <form onSubmit={handleSubmit}>
+            <div className="row g-3">
+              {Object.keys(initialForm).map((key) => (
+                key !== "status" && key !== "promo_code" ? (
+                  <div className="col-md-3" key={key}>
+                    <input
+                      type={
+                        key.includes("date")
+                          ? "date"
+                          : key.includes("value") || key.includes("limit") || key.includes("allowed") || key.includes("discount")
+                          ? "number"
+                          : "text"
+                      }
+                      name={key}
+                      value={formData[key] || ""}
+                      onChange={handleChange}
+                      placeholder={`Enter ${key.replace(/_/g, " ")}`}
+                      className="form-control"
+                      required={key === "promotion_title" || key === "promo_type"}
+                    />
+                  </div>
+                ) : null
+              ))}
 
-        //       <form onSubmit={handleSubmit}>
-        //         <div className="modal-body">
-        //           <div className="row g-3">
-        //             <div className="col-md-6">
-        //               <label className="form-label">Title</label>
-        //               <input
-        //                 type="text"
-        //                 name="promotion_title"
-        //                 className="form-control"
-        //                 value={formData.promotion_title}
-        //                 onChange={handleChange}
-        //                 required
-        //               />
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">Promo Type</label>
-        //               <input
-        //                 type="text"
-        //                 name="promo_type"
-        //                 className="form-control"
-        //                 value={formData.promo_type}
-        //                 onChange={handleChange}
-        //                 required
-        //               />
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">Discount Value</label>
-        //               <input
-        //                 type="number"
-        //                 name="discount_value"
-        //                 className="form-control"
-        //                 value={formData.discount_value}
-        //                 onChange={handleChange}
-        //                 required
-        //               />
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">Max Discount</label>
-        //               <input
-        //                 type="number"
-        //                 name="max_discount"
-        //                 className="form-control"
-        //                 value={formData.max_discount}
-        //                 onChange={handleChange}
-        //                 required
-        //               />
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">Start Date</label>
-        //               <input
-        //                 type="date"
-        //                 name="start_date"
-        //                 className="form-control"
-        //                 value={formData.start_date}
-        //                 onChange={handleChange}
-        //                 required
-        //               />
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">End Date</label>
-        //               <input
-        //                 type="date"
-        //                 name="end_date"
-        //                 className="form-control"
-        //                 value={formData.end_date}
-        //                 onChange={handleChange}
-        //                 required
-        //               />
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">Max Allowed</label>
-        //               <input
-        //                 type="number"
-        //                 name="max_allowed"
-        //                 className="form-control"
-        //                 value={formData.max_allowed}
-        //                 onChange={handleChange}
-        //               />
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">Per User Limit</label>
-        //               <input
-        //                 type="number"
-        //                 name="per_user_limit"
-        //                 className="form-control"
-        //                 value={formData.per_user_limit}
-        //                 onChange={handleChange}
-        //               />
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">Status</label>
-        //               <select
-        //                 name="status"
-        //                 className="form-select"
-        //                 value={formData.status}
-        //                 onChange={handleChange}
-        //               >
-        //                 <option value="Active">Active</option>
-        //                 <option value="Inactive">Inactive</option>
-        //               </select>
-        //             </div>
-        //             <div className="col-md-6">
-        //               <label className="form-label">Promo Code</label>
-        //               <input
-        //                 type="text"
-        //                 name="promo_code"
-        //                 className="form-control"
-        //                 value={formData.promo_code}
-        //                 onChange={handleChange}
-        //                 required
-        //               />
-        //             </div>
-        //           </div>
-        //         </div>
-        //         <div className="modal-footer">
-        //           <button
-        //             type="button"
-        //             className="btn btn-secondary"
-        //             onClick={() => setShowForm(false)}
-        //           >
-        //             Cancel
-        //           </button>
-        //           <button type="submit" className="btn btn-success">
-        //             {editingPromotion ? "Update" : "Save"}
-        //           </button>
-        //         </div>
-        //       </form>
-        //     </div>
-        //   </div>
-        // </div>
-        <div className="card">
-          <div className="row">
-            <div className="col-mb-2">
-              <input type="text" name="prpromotion_title" value={ } placeholder="Enter Promotion Title" />
+              <div className="col-md-3">
+                <input
+                  type="text"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  placeholder="Enter Status"
+                  className="form-control"
+                />
+              </div>
+              <div className="col-md-3">
+                <input
+                  type="text"
+                  name="promo_code"
+                  value={formData.promo_code}
+                  onChange={handleChange}
+                  placeholder="Enter Promo Code"
+                  className="form-control"
+                />
+              </div>
+
+              <div className="col-12 text-end">
+                <button type="submit" className="btn btn-primary me-2">
+                  {editingPromotion ? "Update Promotion" : "Add Promotion"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowForm(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-            <div className="col-mb-2">
-              <input type="text" name="prpromotion_type" value={ } placeholder="Enter Promotion Type" />
-            </div>
-            <div className="col-mb-2">
-              <input type="text" name="discout_value" value={ } placeholder="Enter Discount Value" />
-            </div>
-            <div className="col-mb-2">
-              <input type="text" name="max_discount" value={ } placeholder="Enter Maximum Discount"/>
-            </div>
-            <div className="col-mb-2">
-              <input type="date" name="start_date" valu0e={ } require />
-            </div>
-            <div className="col-mb-2">
-              <input type="date" name="end_date" value={ } required />
-            </div>
-            <div className="col-mb-2">
-              <input type="text" name="max_allowed" value={ } placeholder="Enter Maximum Allowed" />
-            </div>
-            <div className="col-mb-2">
-              <input type="text" name="per_user_limit" value={ } placeholder="Enter Limit Per User" />
-            </div>
-            <div className="col-mb-2">
-              <input type="text" name="status" value={ } placeholder="Enter Status" />
-            </div>
-            <div className="col-mb-2">
-              <input type="text" name="prormo_code" value={ } placeholder="Enter Promocod" />
-            </div>
-          </div>
+          </form>
         </div>
       )}
 
-      {/* Table */}
+      {/* ✅ VIEW DETAILS CARD */}
+{viewPromotion && (
+  <div
+    className="offcanvas offcanvas-end show"
+    tabIndex="-1"
+    // style={{backgroundColor: "rgba(255, 255, 255, 0.5)" }} 
+  >
+    <div className="offcanvas-header bg-primary text-white">
+      <h5 className="offcanvas-title">Promotion Details</h5>
+      <button
+        type="button"
+        className="btn-close btn-close-white"
+        onClick={() => setViewPromotion(null)}
+      ></button>
+    </div>
+
+    <div className="offcanvas-body">
+      <div className="row">
+        {Object.entries(viewPromotion).map(([key, value], i) => (
+          <div className="col-md-6 mb-3" key={i}>
+            <strong>{key.replace(/_/g, " ").toUpperCase()}:</strong> <br />
+            <span>{value || "—"}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-end">
+        <button
+          className="btn btn-secondary mt-3"
+          onClick={() => setViewPromotion(null)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+      {/* ✅ TABLE SECTION */}
       <div className="table-responsive mt-4">
         <table className="table table-bordered align-middle text-center shadow-sm fs-6">
           <thead className="table-dark">
@@ -341,14 +258,19 @@ function Promotion() {
                   <td>{p.promotion_title}</td>
                   <td>
                     <span
-                      className={`badge ${p.status === "Active" ? "bg-success" : "bg-secondary"
-                        }`}
+                      className={`badge ${p.status === "Active" ? "bg-success" : "bg-secondary"}`}
                     >
                       {p.status}
                     </span>
                   </td>
                   <td>{p.promo_code}</td>
                   <td>
+                    <button
+                      className="btn btn-primary btn-sm me-2"
+                      onClick={() => handleView(p)}
+                    >
+                      <Eye />
+                    </button>
                     <button
                       className="btn btn-warning btn-sm me-2"
                       onClick={() => handleEdit(p)}
@@ -372,8 +294,6 @@ function Promotion() {
           </tbody>
         </table>
       </div>
-
-
     </div>
   );
 }
