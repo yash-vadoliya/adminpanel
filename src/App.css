@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+
+.react-calendar__tile.highlight-holiday {
+  background-color: #ffcccc;
+  color: red;
+  font-weight: bold;
+}
