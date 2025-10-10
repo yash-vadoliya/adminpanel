@@ -135,6 +135,188 @@ function Promotion() {
         </button>
       </div>
 
+      {/* Modal Form */}
+      {showForm && (
+        // <div className="modal d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.5)" }}>
+        //   <div className="modal-dialog modal-lg">
+        //     <div className="modal-content">
+        //       <div className="modal-header bg-success text-white">
+        //         <h5 className="modal-title">
+        //           {editingPromotion ? "Edit Promotion" : "Add Promotion"}
+        //         </h5>
+        //         <button
+        //           type="button"
+        //           className="btn-close"
+        //           onClick={() => setShowForm(false)}
+        //         ></button>
+        //       </div>
+
+        //       <form onSubmit={handleSubmit}>
+        //         <div className="modal-body">
+        //           <div className="row g-3">
+        //             <div className="col-md-6">
+        //               <label className="form-label">Title</label>
+        //               <input
+        //                 type="text"
+        //                 name="promotion_title"
+        //                 className="form-control"
+        //                 value={formData.promotion_title}
+        //                 onChange={handleChange}
+        //                 required
+        //               />
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">Promo Type</label>
+        //               <input
+        //                 type="text"
+        //                 name="promo_type"
+        //                 className="form-control"
+        //                 value={formData.promo_type}
+        //                 onChange={handleChange}
+        //                 required
+        //               />
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">Discount Value</label>
+        //               <input
+        //                 type="number"
+        //                 name="discount_value"
+        //                 className="form-control"
+        //                 value={formData.discount_value}
+        //                 onChange={handleChange}
+        //                 required
+        //               />
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">Max Discount</label>
+        //               <input
+        //                 type="number"
+        //                 name="max_discount"
+        //                 className="form-control"
+        //                 value={formData.max_discount}
+        //                 onChange={handleChange}
+        //                 required
+        //               />
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">Start Date</label>
+        //               <input
+        //                 type="date"
+        //                 name="start_date"
+        //                 className="form-control"
+        //                 value={formData.start_date}
+        //                 onChange={handleChange}
+        //                 required
+        //               />
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">End Date</label>
+        //               <input
+        //                 type="date"
+        //                 name="end_date"
+        //                 className="form-control"
+        //                 value={formData.end_date}
+        //                 onChange={handleChange}
+        //                 required
+        //               />
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">Max Allowed</label>
+        //               <input
+        //                 type="number"
+        //                 name="max_allowed"
+        //                 className="form-control"
+        //                 value={formData.max_allowed}
+        //                 onChange={handleChange}
+        //               />
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">Per User Limit</label>
+        //               <input
+        //                 type="number"
+        //                 name="per_user_limit"
+        //                 className="form-control"
+        //                 value={formData.per_user_limit}
+        //                 onChange={handleChange}
+        //               />
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">Status</label>
+        //               <select
+        //                 name="status"
+        //                 className="form-select"
+        //                 value={formData.status}
+        //                 onChange={handleChange}
+        //               >
+        //                 <option value="Active">Active</option>
+        //                 <option value="Inactive">Inactive</option>
+        //               </select>
+        //             </div>
+        //             <div className="col-md-6">
+        //               <label className="form-label">Promo Code</label>
+        //               <input
+        //                 type="text"
+        //                 name="promo_code"
+        //                 className="form-control"
+        //                 value={formData.promo_code}
+        //                 onChange={handleChange}
+        //                 required
+        //               />
+        //             </div>
+        //           </div>
+        //         </div>
+        //         <div className="modal-footer">
+        //           <button
+        //             type="button"
+        //             className="btn btn-secondary"
+        //             onClick={() => setShowForm(false)}
+        //           >
+        //             Cancel
+        //           </button>
+        //           <button type="submit" className="btn btn-success">
+        //             {editingPromotion ? "Update" : "Save"}
+        //           </button>
+        //         </div>
+        //       </form>
+        //     </div>
+        //   </div>
+        // </div>
+        <div className="card">
+          <div className="row">
+            <div className="col-mb-2">
+              <input type="text" name="prpromotion_title" value={ } placeholder="Enter Promotion Title" />
+            </div>
+            <div className="col-mb-2">
+              <input type="text" name="prpromotion_type" value={ } placeholder="Enter Promotion Type" />
+            </div>
+            <div className="col-mb-2">
+              <input type="text" name="discout_value" value={ } placeholder="Enter Discount Value" />
+            </div>
+            <div className="col-mb-2">
+              <input type="text" name="max_discount" value={ } placeholder="Enter Maximum Discount"/>
+            </div>
+            <div className="col-mb-2">
+              <input type="date" name="start_date" valu0e={ } require />
+            </div>
+            <div className="col-mb-2">
+              <input type="date" name="end_date" value={ } required />
+            </div>
+            <div className="col-mb-2">
+              <input type="text" name="max_allowed" value={ } placeholder="Enter Maximum Allowed" />
+            </div>
+            <div className="col-mb-2">
+              <input type="text" name="per_user_limit" value={ } placeholder="Enter Limit Per User" />
+            </div>
+            <div className="col-mb-2">
+              <input type="text" name="status" value={ } placeholder="Enter Status" />
+            </div>
+            <div className="col-mb-2">
+              <input type="text" name="prormo_code" value={ } placeholder="Enter Promocod" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="table-responsive mt-4">
         <table className="table table-bordered align-middle text-center shadow-sm fs-6">
@@ -159,9 +341,8 @@ function Promotion() {
                   <td>{p.promotion_title}</td>
                   <td>
                     <span
-                      className={`badge ${
-                        p.status === "Active" ? "bg-success" : "bg-secondary"
-                      }`}
+                      className={`badge ${p.status === "Active" ? "bg-success" : "bg-secondary"
+                        }`}
                     >
                       {p.status}
                     </span>
@@ -192,170 +373,7 @@ function Promotion() {
         </table>
       </div>
 
-      {/* Modal Form */}
-      {showForm && (
-        <div className="modal d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header bg-success text-white">
-                <h5 className="modal-title">
-                  {editingPromotion ? "Edit Promotion" : "Add Promotion"}
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowForm(false)}
-                ></button>
-              </div>
 
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label">Title</label>
-                      <input
-                        type="text"
-                        name="promotion_title"
-                        className="form-control"
-                        value={formData.promotion_title}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Promo Type</label>
-                      <input
-                        type="text"
-                        name="promo_type"
-                        className="form-control"
-                        value={formData.promo_type}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Discount Value</label>
-                      <input
-                        type="number"
-                        name="discount_value"
-                        className="form-control"
-                        value={formData.discount_value}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Max Discount</label>
-                      <input
-                        type="number"
-                        name="max_discount"
-                        className="form-control"
-                        value={formData.max_discount}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Start Date</label>
-                      <input
-                        type="date"
-                        name="start_date"
-                        className="form-control"
-                        value={formData.start_date}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">End Date</label>
-                      <input
-                        type="date"
-                        name="end_date"
-                        className="form-control"
-                        value={formData.end_date}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Max Allowed</label>
-                      <input
-                        type="number"
-                        name="max_allowed"
-                        className="form-control"
-                        value={formData.max_allowed}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Per User Limit</label>
-                      <input
-                        type="number"
-                        name="per_user_limit"
-                        className="form-control"
-                        value={formData.per_user_limit}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Status</label>
-                      <select
-                        name="status"
-                        className="form-select"
-                        value={formData.status}
-                        onChange={handleChange}
-                      >
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Promo Code</label>
-                      <input
-                        type="text"
-                        name="promo_code"
-                        className="form-control"
-                        value={formData.promo_code}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setShowForm(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className="btn btn-success">
-                    {editingPromotion ? "Update" : "Save"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-{/* 
-	  <div className="table-responsive mt-4">
- 					<table className="table table-bordered align-middle text-center shadow-sm fs-5">
- 						<thead className="table-dark">
- 							<tr>
- 								<th>ID</th>
- 								<th>TITLE</th>
- 								<th>STATUS</th>
- 								<th>PROMO CODE</th>
- 								<th>ACTION</th>
- 							</tr>
- 						</thead>
- 						<tbody>
- 							<tr></tr>
- 						</tbody>
- 					</table>
- 				</div> */}
     </div>
   );
 }
