@@ -17,7 +17,10 @@ import Vehicles from "./pages/Vehicles";
 import Fare from "./pages/Fare";
 import Trip from "./pages/Trip";
 import Analytics from "./pages/Analytics";
-import Promotion from "./pages/Promotion";
+import Cencellation from './pages/Cencellation';
+import Promotion from './pages/Promotion';
+import SuggestedRoutes from "./pages/SuggestedRoutes";
+import Holiday from "./pages/Holiday";
 
 // Layout component for pages with sidebar
 function Layout({ isSidebarExpanded, toggleSidebar }) {
@@ -63,7 +66,7 @@ function App() {
             </>
           }
         >
-          <Route path="/deshboard" element={<PrivateRoute><Deshboard /></PrivateRoute>} />
+          <Route path="/dashboard" element={<PrivateRoute><Deshboard /></PrivateRoute>} />
           <Route path="/mapview" element={<PrivateRoute><Mapview /></PrivateRoute>} />
           <Route path="/geofance" element={<PrivateRoute><Geofance /></PrivateRoute>} />
           <Route path="/stops" element={<PrivateRoute><Stops /></PrivateRoute>} />
@@ -72,7 +75,11 @@ function App() {
           <Route path="/fare" element={<PrivateRoute><Fare /></PrivateRoute>} />
           <Route path="/trip" element={<PrivateRoute><Trip /></PrivateRoute>} />
           <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
-          <Route path="/promotion" element={<PrivateRoute><Promotion /></PrivateRoute>} />
+          <Route path="/cancel" element={<PrivateRoute><Cencellation /></PrivateRoute>} />
+          <Route path="/promo" element={<PrivateRoute><Promotion /></PrivateRoute>} />
+          <Route path="/suggestedroutes" element={<PrivateRoute><SuggestedRoutes /></PrivateRoute>} />
+          <Route path="/holiday" element={<PrivateRoute><Holiday /></PrivateRoute>} />
+
         </Route>
       </Routes>
     </AuthProvider>

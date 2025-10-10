@@ -27,7 +27,7 @@ function Login() {
                 localStorage.setItem("token", data.token); // save token
                 // setToken(data.token);
                 alert(data.message); // show success message
-                navigate("/deshboard"); // 👈 go to home 
+                navigate("/dashboard"); // 👈 go to home 
                 // window.location.href = '/dashboard';
             } else {
                 alert(data.error || "Login failed");

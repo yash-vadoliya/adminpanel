@@ -48,7 +48,7 @@ const Sidebar = () => {
       <ul className="nav nav-pills flex-column mb-auto">
         {/* Dashboard */}
         <li>
-          <a href='/deshboard' className="nav-link text-dark d-flex align-items-center">
+          <a href='/dashboard' className="nav-link text-dark d-flex align-items-center">
             <i className="bi bi-speedometer2 me-2"></i>
             {isExpanded && "Dashboard"}
           </a>
@@ -110,7 +110,7 @@ const Sidebar = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="nav-link text-dark d-flex align-items-center">
+                <a href="/cancel" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-x-circle me-2"></i>
                   Cancellation
                 </a>
@@ -119,22 +119,22 @@ const Sidebar = () => {
                 <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-exclamation-triangle me-2"></i>
                   Cancellation Reasons
-                </a>
+                </a> 
               </li>
               <li>
-                <a href="/promotion" className="nav-link text-dark d-flex align-items-center">
+                <a href="/promo" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-megaphone me-2"></i>
                   Promotions
                 </a>
               </li>
               <li>
-                <a href="#" className="nav-link text-dark d-flex align-items-center">
+                <a href="/suggestedroutes" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-compass me-2"></i>
                   Suggested Routes
                 </a>
               </li>
               <li>
-                <a href="#" className="nav-link text-dark d-flex align-items-center">
+                <a href="/holiday" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-calendar-event me-2"></i>
                   Holiday
                 </a>
