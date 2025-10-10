@@ -17,6 +17,7 @@ import Vehicles from "./pages/Vehicles";
 import Fare from "./pages/Fare";
 import Trip from "./pages/Trip";
 import Analytics from "./pages/Analytics";
+import Promotion from "./pages/Promotion";
 
 // Layout component for pages with sidebar
 function Layout({ isSidebarExpanded, toggleSidebar }) {
@@ -71,6 +72,7 @@ function App() {
           <Route path="/fare" element={<PrivateRoute><Fare /></PrivateRoute>} />
           <Route path="/trip" element={<PrivateRoute><Trip /></PrivateRoute>} />
           <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+          <Route path="/promotion" element={<PrivateRoute><Promotion /></PrivateRoute>} />
         </Route>
       </Routes>
     </AuthProvider>

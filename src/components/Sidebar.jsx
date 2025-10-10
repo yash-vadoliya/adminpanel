@@ -122,7 +122,7 @@ const Sidebar = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="nav-link text-dark d-flex align-items-center">
+                <a href="/promotion" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-megaphone me-2"></i>
                   Promotions
                 </a>
