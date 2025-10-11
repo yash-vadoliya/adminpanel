@@ -2,16 +2,19 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../AuthContext";
 import CONFIG from "../Config";
 import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
+import "../App.css";
 
 function Promotion() {
-  const { token } = useContext(AuthContext);
-  const [promotions, setPromotions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { token, user } = useContext(AuthContext);
   const [showForm, setShowForm] = useState(false);
-  const [editingPromotion, setEditingPromotion] = useState(null);
-  const [viewPromotion, setViewPromotion] = useState(null);
+  const [promo, setPromo] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [editID, setEditId] = useState(null);
+  const [selectedPromo, setSelectedPromo] = useState(null);
 
-  const initialForm = {
+  const [formData, setFormData] = useState({
     promotion_title: "",
     promo_type: "",
     discount_value: "",
@@ -22,291 +25,364 @@ function Promotion() {
     per_user_limit: "",
     status: "Active",
     promo_code: "",
+    adduid: user?.user_id || "",
+  });
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
   };
 
-  const [formData, setFormData] = useState(initialForm);
+  // Fetch Data
+  useEffect(() => {
+    fetchPromo();
+  }, []);
 
-// Pagination state
-const [currentPage, setCurrentPage] = useState(1);
-const [itemsPerPage] = useState(10); // ✅ Show 10 records per page
-
-  // Fetch promotions
-  const fetchPromotions = async () => {
+  const fetchPromo = async () => {
     try {
       setLoading(true);
       const res = await fetch(`${CONFIG.API_BASE_URL}/promotions`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        method: "GET",
+        headers,
       });
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
       const data = await res.json();
-      setPromotions(data[0] || []);
+      const flatData = Array.isArray(data[0]) ? data.flat() : data;
+      setPromo(flatData);
+      console.log("Promotions:", flatData);
     } catch (err) {
-      console.error("Error fetching promotions:", err);
+      console.log("Error fetching data:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPromotions();
-  }, []);
+  // Add / Reset form
+  const handleAdd = () => {
+    setFormData({
+      promotion_title: "",
+      promo_type: "",
+      discount_value: "",
+      max_discount: "",
+      start_date: "",
+      end_date: "",
+      max_allowed: "",
+      per_user_limit: "",
+      status: "Active",
+      promo_code: "",
+      adduid: user?.user_id || "",
+    });
+    setEditId(null);
+    setShowForm(true);
+  };
 
+  // Input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = editingPromotion
-      ? `${CONFIG.API_BASE_URL}/promotions/${editingPromotion.promotion_id}`
-      : `${CONFIG.API_BASE_URL}/promotions`;
-
-    const method = editingPromotion ? "PUT" : "POST";
-
     try {
+      const payload = { ...formData, adduid: user?.user_id || null };
+      const url = editID
+        ? `${CONFIG.API_BASE_URL}/promotions/${editID}`
+        : `${CONFIG.API_BASE_URL}/promotions`;
+      const method = editID ? "PUT" : "POST";
+
       const res = await fetch(url, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
+        headers,
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        fetchPromotions();
+        alert(editID ? "Promo Updated" : "Promo Added");
+        fetchPromo();
         setShowForm(false);
-        setEditingPromotion(null);
-        setFormData(initialForm);
+        setEditId(null);
       } else {
-        console.error("Failed to save promotion");
+        const err = await res.json();
+        alert(`Error: ${err.error || "Unknown error"}`);
       }
     } catch (err) {
-      console.error("Error saving promotion:", err);
+      console.log("Submit error:", err);
     }
   };
 
-  const handleEdit = (promo) => {
-    setEditingPromotion(promo);
-    setFormData(promo);
+  // Edit
+  const handleEdit = (p) => {
+    setFormData({
+      promotion_title: p.promotion_title,
+      promo_type: p.promo_type,
+      discount_value: p.discount_value,
+      max_discount: p.max_discount,
+      start_date: p.start_date?.split("T")[0] || "",
+      end_date: p.end_date?.split("T")[0] || "",
+      max_allowed: p.max_allowed,
+      per_user_limit: p.per_user_limit,
+      status: p.status,
+      promo_code: p.promo_code,
+      adduid: p.adduid,
+    });
+    setEditId(p.promotion_id);
     setShowForm(true);
-    setViewPromotion(null);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this promotion?")) return;
+  // Delete
+  const handleDelete = async (promotion_id) => {
+    if (!window.confirm("Are you sure you want to delete this promo?")) return;
     try {
-      await fetch(`${CONFIG.API_BASE_URL}/promotions/${id}`, {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/promotions/${promotion_id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers,
       });
-      fetchPromotions();
+      if (res.ok) {
+        alert("Promo deleted");
+        fetchPromo();
+      }
     } catch (err) {
-      console.error("Error deleting promotion:", err);
+      console.log("Delete error:", err);
     }
   };
 
-  const handleView = (promo) => {
-    setViewPromotion(promo);
-    setShowForm(false);
-  };
-
-  // Pagination calculations
- const indexOfLastItem = currentPage * itemsPerPage;
-const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-const currentPromotions = promotions.slice(indexOfFirstItem, indexOfLastItem);
-const totalPages = Math.ceil(promotions.length / itemsPerPage);
-
+  // Pagination
+  const activePromo = promo.filter(
+    (p) => p.record_status === 1 || p.record_status === undefined
+  );
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentData = activePromo.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(activePromo.length / itemsPerPage);
 
   return (
     <div className="container-fluid">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="text-success">Promotion</h2>
-        <button
-          className="btn btn-success"
-          onClick={() => {
-            setFormData(initialForm);
-            setEditingPromotion(null);
-            setShowForm(true);
-            setViewPromotion(null);
-          }}
-        >
-          Add Promotion
+        <h2>Promotion</h2>
+        <button className="btn btn-success" onClick={handleAdd}>
+          Add Promo
         </button>
       </div>
 
-      {/* FORM */}
+      {/* Add/Edit Form */}
       {showForm && (
-        <div className="card p-3 shadow-sm mb-4">
+        <div className="card p-3 shadow mb-4">
+          <h5>{editID ? "Edit Promotion" : "Add Promotion"}</h5>
           <form onSubmit={handleSubmit}>
-            <div className="row g-3">
-              {Object.keys(initialForm).map((key) => (
-                <div className="col-md-3" key={key}>
+            <div className="row">
+              {[
+                { label: "Promotion Title", name: "promotion_title" },
+                { label: "Promotion Type", name: "promo_type" },
+                { label: "Discount Value", name: "discount_value" },
+                { label: "Maximum Discount", name: "max_discount" },
+                { label: "Start Date", name: "start_date", type: "date" },
+                { label: "End Date", name: "end_date", type: "date" },
+                { label: "Max Allowed", name: "max_allowed" },
+                { label: "User Limit", name: "per_user_limit" },
+                { label: "Promo Code", name: "promo_code" },
+              ].map((field, i) => (
+                <div className="col-md-4 mb-2" key={i}>
+                  <label className="form-label">{field.label}</label>
                   <input
-                    type={
-                      key.includes("date")
-                        ? "date"
-                        : key.includes("value") ||
-                          key.includes("limit") ||
-                          key.includes("allowed") ||
-                          key.includes("discount")
-                        ? "number"
-                        : "text"
-                    }
-                    name={key}
-                    value={formData[key] || ""}
-                    onChange={handleChange}
-                    placeholder={key.replace(/_/g, " ")}
+                    type={field.type || "text"}
+                    name={field.name}
                     className="form-control"
-                    required={key === "promotion_title" || key === "promo_type"}
+                    value={formData[field.name]}
+                    onChange={handleChange}
                   />
                 </div>
               ))}
-
-              <div className="col-12 text-end">
-                <button type="submit" className="btn btn-primary me-2">
-                  {editingPromotion ? "Update Promotion" : "Add Promotion"}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowForm(false)}
+              <div className="col-md-4 mb-2">
+                <label className="form-label">Status</label>
+                <select
+                  name="status"
+                  className="form-select"
+                  value={formData.status}
+                  onChange={handleChange}
                 >
-                  Cancel
-                </button>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
               </div>
             </div>
+
+            <button type="submit" className="btn btn-primary me-2">
+              {editID ? "Update" : "Add"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowForm(false)}
+            >
+              Cancel
+            </button>
           </form>
         </div>
       )}
 
-      {/* VIEW DETAILS */}
-      {viewPromotion && (
-        <div
-          className="offcanvas offcanvas-end show"
-          tabIndex="-1"
-          style={{ visibility: "visible" }}
-        >
-          <div className="offcanvas-header bg-primary text-white">
-            <h5 className="offcanvas-title">Promotion Details</h5>
-            <button
-              type="button"
-              className="btn-close btn-close-white"
-              onClick={() => setViewPromotion(null)}
-            ></button>
-          </div>
-          <div className="offcanvas-body">
-            <div className="row">
-              {Object.entries(viewPromotion).map(([key, value], i) => (
-                <div className="col-md-6 mb-3" key={i}>
-                  <strong>{key.replace(/_/g, " ").toUpperCase()}:</strong> <br />
-                  <span>{value || "—"}</span>
-                </div>
-              ))}
-            </div>
-            <div className="text-end">
-              <button
-                className="btn btn-secondary mt-3"
-                onClick={() => setViewPromotion(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
+      {/* Table */}
+      <div className="card p-3 shadow">
+        <h5>Promotion List</h5>
+        <div className="table-responsive mt-3">
+          <table className="table table-bordered align-middle text-center shadow-sm">
+            <thead className="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Discount</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentData.length > 0 ? (
+                currentData.map((p, i) => (
+                  <tr key={i}>
+                    <td>{p.promotion_id}</td>
+                    <td>{p.promotion_title}</td>
+                    <td>{p.promo_type}</td>
+                    <td>{p.discount_value}</td>
+                    <td>{p.start_date?.split("T")[0]}</td>
+                    <td>{p.end_date?.split("T")[0]}</td>
+                    <td>
+                      {p.status === "Active" ? (
+                        <span className="badge bg-success px-3 py-2">Active</span>
+                      ) : (
+                        <span className="badge bg-danger px-3 py-2">Inactive</span>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-info btn-sm me-2"
+                        onClick={() => setSelectedPromo(p)}
+                      >
+                        <Eye />
+                      </button>
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={() => handleEdit(p)}
+                      >
+                        <PencilSquare />
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleDelete(p.promotion_id)}
+                      >
+                        <Trash />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8">No active promotions found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
+
+
+
+      {/* ✅ Sliding Detail Panel */}
+      {selectedPromo && (
+        <>
+          <div
+            className="details-overlay"
+            onClick={() => setSelectedPromo(null)}
+          ></div>
+
+          <div className="details-panel show">
+            <div className="card shadow-lg">
+              <div className="card-header  d-flex justify-content-between align-items-center">
+              <h4 className="mb-0 text-center flex-grow-1 fs-3">Promotion Details</h4>
+              <button
+                className="btn btn-light btn-sm"
+                onClick={() => setSelectedPromo(null)}
+              >
+                ✖
+              </button>
+              </div>
+              
+          
+           <div className="card-body fs-5">
+              <div className="row g-3 mb-3">
+                <div className="col-md-6"><strong className="text-success">Promotion Title </strong>{setSelectedPromo.promotion_title}</div>
+                <div className="col-md-6"><strong className="text-success">Promotion Type</strong>{setSelectedPromo.promo_type}</div>
+              </div>
+              <hr />
+              <div className="row g-3 mb-3">
+                <div className="col-md-6"><strong className="text-success">Discount Value</strong>{setSelectedPromo.discount_value}</div>
+                <div className="col-md-6"><strong className="text-success">Maximum Discount</strong>{setSelectedPromo.max_discount}</div>
+                
+              </div>
+              <hr />
+              <div className="row g-3 mb-3">
+                <div className="col-md-6"><strong className="text-success">Date From</strong>{setSelectedPromo.start_date?.split("T")[0]}</div>
+                <div className="col-md-6"><strong className="text-success">Max Allowed</strong>{setSelectedPromo.max_allowed}</div>
+                <div className="col-md-6"><strong className="text-success">User Limit</strong>{setSelectedPromo.per_user_limit}</div>
+              </div>
+              <hr />
+              <div className="row g-3 mb-3">
+                  <div className="col-md-6"><strong className="text-success">Status</strong>{setSelectedPromo.status === 'Active' ? (<span className="badge bg-success px-3 py-2 fs-6">Active</span>) : (<span className="badge bg-danger px-3 py-2 fs-6">Stopped</span>)}</div>
+                  <div className="col-md-6"><strong className="text-success">Add User ID</strong>{setSelectedPromo.adduid}</div>
+                  <div className="col-md-12"><strong className="text-success">Promocode</strong><span className="fs-3 bg-light">{setSelectedPromo.promo_code}</span></div>
+              </div>
+           </div>
+             </div>
+
+          </div>
+        </>
       )}
 
-      {/* TABLE */}
-      <div className="table-responsive mt-4">
-        <table className="table table-bordered align-middle text-center shadow-sm fs-6">
-          <thead className="table-dark">
-            <tr>
-              <th>ID</th>
-              <th>TITLE</th>
-              <th>STATUS</th>
-              <th>PROMO CODE</th>
-              <th>ACTION</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="5">Loading...</td>
-              </tr>
-            ) : currentPromotions.length > 0 ? (
-              currentPromotions.map((p, i) => (
-                <tr key={i}>
-                  <td>{p.promotion_id}</td>
-                  <td>{p.promotion_title}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        p.status === "Active" ? "bg-success" : "bg-secondary"
-                      }`}
-                    >
-                      {p.status}
-                    </span>
-                  </td>
-                  <td>{p.promo_code}</td>
-                  <td>
-                    <button
-                      className="btn btn-primary btn-sm me-2"
-                      onClick={() => handleView(p)}
-                    >
-                      <Eye />
-                    </button>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => handleEdit(p)}
-                    >
-                      <PencilSquare />
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(p.promotion_id)}
-                    >
-                      <Trash />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5">No promotions found</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
 
-      {/* PAGINATION */}
-     {/* Pagination */}
-<div className="d-flex justify-content-center mt-3">
-  <nav>
-    <ul className="pagination">
-      <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-        <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
-          Previous
-        </button>
-      </li>
-      {Array.from({ length: totalPages }, (_, i) => (
-        <li key={i} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
-          <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
-            {i + 1}
-          </button>
-        </li>
-      ))}
-      <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-        <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
-          Next
-        </button>
-      </li>
-    </ul>
-  </nav>
-</div>
+              {/* Pagination */}
+        <div className="d-flex justify-content-center mt-3">
+          <nav>
+            <ul className="pagination">
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                >
+                  Previous
+                </button>
+              </li>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <li
+                  key={i}
+                  className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() => +(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                </li>
+              ))}
+              <li
+                className={`page-item ${currentPage === totalPages ? "disabled" : ""
+                  }`}
+              >
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
     </div>
   );
 }
