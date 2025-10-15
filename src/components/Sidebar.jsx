@@ -1,11 +1,21 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { AuthContext } from "../AuthContext";
+import ROLES from "../Role";
 
 const Sidebar = () => {
+  const { user } = useContext(AuthContext);
   const [isExpanded, setIsExpanded] = useState(true);
   const [shuttleOpen, setShuttleOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [settingOpen, setSettingOpen] = useState(false);
+
+  const SuperAdmin = ROLES.SUPER_ADMIN;
+  const Admin = ROLES.ADMIN;
+  const Manager = ROLES.MANAGER;
+  const Travel_manager = ROLES.TRAVEL_MANAGER;
+  const Operator = ROLES.OPERATOER;
+  const Enduser = ROLES.END_USER;
 
   const toggleSetting = () => {
     setSettingOpen(!settingOpen);
@@ -29,7 +39,7 @@ const Sidebar = () => {
       style={{ width: isExpanded ? "280px" : "80px", transition: "width 0.3s", height:'100vh'}}
     >
       {/* Top Section */}
-      <div className="d-flex align-items-center justify-content-between mb-3">
+      <div className="d-flex align-items-center justify-content-between mb-3 ">
         {isExpanded && <span className="fs-5 fw-bold">Menu</span>}
         <button
           className="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2"
@@ -45,7 +55,7 @@ const Sidebar = () => {
       <hr />
 
       {/* Menu */}
-      <ul className="nav nav-pills flex-column mb-auto">
+      <ul className="nav nav-pills flex-column mb-auto fs-5">
         {/* Dashboard */}
         <li>
           <a href='/dashboard' className="nav-link text-dark d-flex align-items-center">
@@ -80,10 +90,12 @@ const Sidebar = () => {
                 </a>
               </li>
               <li>
-                <a href="/routes" className="nav-link text-dark d-flex align-items-center">
+                {user && [SuperAdmin,Admin].includes(user.role_id) && (
+                  <a href="/routes" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-signpost-2 me-2"></i>
                   Routes
                 </a>
+                )}
               </li>
               <li>
                 <a href="/vehicles" className="nav-link text-dark d-flex align-items-center">
@@ -110,7 +122,7 @@ const Sidebar = () => {
                 </a>
               </li>
               <li>
-                <a href="/cancel" className="nav-link text-dark d-flex align-items-center">
+                <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-x-circle me-2"></i>
                   Cancellation
                 </a>
@@ -119,7 +131,7 @@ const Sidebar = () => {
                 <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-exclamation-triangle me-2"></i>
                   Cancellation Reasons
-                </a> 
+                </a>
               </li>
               <li>
                 <a href="/promo" className="nav-link text-dark d-flex align-items-center">

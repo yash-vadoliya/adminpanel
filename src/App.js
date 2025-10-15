@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Routes, Route, Outlet } from "react-router-dom";
 import "./App.css";
+import ROLES from './Role';
 import { AuthProvider } from "./AuthContext";
 import PrivateRoute from "./PrivateRoute";
 
@@ -46,10 +47,18 @@ function Layout({ isSidebarExpanded, toggleSidebar }) {
 
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-
+   
   const toggleSidebar = () => {
     setIsSidebarExpanded((prev) => !prev);
   };
+
+  const SuperAdmin = ROLES.SUPER_ADMIN;
+  const Admin = ROLES.ADMIN;
+  const Manager = ROLES.MANAGER;
+  const Travel_manager = ROLES.TRAVEL_MANAGER;
+  const Operator = ROLES.OPERATOER;
+  const Enduser = ROLES.END_USER;
+
 
   return (
     <AuthProvider>
@@ -70,7 +79,7 @@ function App() {
           <Route path="/mapview" element={<PrivateRoute><Mapview /></PrivateRoute>} />
           <Route path="/geofance" element={<PrivateRoute><Geofance /></PrivateRoute>} />
           <Route path="/stops" element={<PrivateRoute><Stops /></PrivateRoute>} />
-          <Route path="/routes" element={<PrivateRoute><My_Routes /></PrivateRoute>} />
+          <Route path="/routes" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><My_Routes /></PrivateRoute>} />
           <Route path="/vehicles" element={<PrivateRoute><Vehicles /></PrivateRoute>} />
           <Route path="/fare" element={<PrivateRoute><Fare /></PrivateRoute>} />
           <Route path="/trip" element={<PrivateRoute><Trip /></PrivateRoute>} />
