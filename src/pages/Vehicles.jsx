@@ -3,6 +3,7 @@ import { AuthContext } from '../AuthContext';
 import CONFIG from '../Config';
 import { PencilSquare, Trash } from 'react-bootstrap-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Pagination from '../components/Pagination';
 
 function Vehicles() {
     const { token, user } = useContext(AuthContext);
@@ -13,9 +14,13 @@ function Vehicles() {
     const [showForm, setShowForm] = useState(false);
     const [editId, setEditId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(5); // rows per page
+    const [itemsPerPage] = useState(10); // rows per page
     const [file, setFile] = useState(null);
     const fileInputRef = useRef();
+
+    // Filters
+    const [statusFilter, setStatusFilter] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [formData, setFormData] = useState({
         vehicles_type: '',
@@ -84,25 +89,14 @@ function Vehicles() {
         setShowForm(true);
     };
 
-    // // Show form for Edit
-    // const handleEdit = (vehicle) => {
-    //     setFormData({ ...vehicle });
-    //     setEditId(vehicle.vehicles_id);
-    //     setShowForm(true);
-    // };
-    // when user clicks Edit
+    // Show form for Edit
     const handleEdit = (vehicle) => {
-        // remove DB-only metadata so formData.adduid won't be a weird value
-        const {
-            adduid, adddate, deleteuid, deletedate, record_status, created_at, updated_at, ...rest
-        } = vehicle;
-
+        const { adduid, adddate, deleteuid, deletedate, record_status, created_at, updated_at, ...rest } = vehicle;
         setFormData({ ...rest });
         setFile(null);
         setEditId(vehicle.vehicles_id);
         setShowForm(true);
     };
-
 
     // Delete vehicle
     const handleDelete = async (vehicles_id) => {
@@ -138,9 +132,7 @@ function Vehicles() {
         try {
             const res = await fetch(url, {
                 method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
+                headers: { 'Authorization': `Bearer ${token}` },
                 body: form,
             });
 
@@ -159,210 +151,62 @@ function Vehicles() {
         }
     };
 
+    // Filtered data
+    const filteredData = data
+        .filter(v => v.record_status === 1)
+        .filter(v => (statusFilter ? v.status === statusFilter : true))
+        .filter(v => (searchTerm ? v.vehicles_number?.toLowerCase().includes(searchTerm.toLowerCase()) : true));
+
     // Pagination
     const indexOfLast = currentPage * itemsPerPage;
     const indexOfFirst = indexOfLast - itemsPerPage;
-    const currentData = data.slice(indexOfFirst, indexOfLast);
-    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const currentData = filteredData.slice(indexOfFirst, indexOfLast);
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
     return (
-        <div className="container" style={{ maxWidth: '75rem' }}>
+        <div className="container-fluid">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2>Vehicles</h2>
                 <button className="btn btn-success" onClick={handleAdd}>Add Vehicle</button>
             </div>
 
-            {/* Form Modal */}
-            {showForm && (
-                <div className="card mb-3 p-3 shadow">
-                    <h5>{editId ? 'Edit Vehicle' : 'Add Vehicle'}</h5>
-                    <form onSubmit={handleSubmit}>
-                        <div className="row">
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Vehicle Type</label>
-                                <input
-                                    type="text"
-                                    name="vehicles_type"
-                                    className="form-control"
-                                    value={formData.vehicles_type}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Brand</label>
-                                <input
-                                    type="text"
-                                    name="brand"
-                                    className="form-control"
-                                    value={formData.brand}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Model Name</label>
-                                <input
-                                    type="text"
-                                    name="model_name"
-                                    className="form-control"
-                                    value={formData.model_name}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Vehicle Number</label>
-                                <input
-                                    type="text"
-                                    name="vehicles_number"
-                                    className="form-control"
-                                    value={formData.vehicles_number}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Register Date</label>
-                                <input
-                                    type="date"
-                                    name="vehicles_register_date"
-                                    className="form-control"
-                                    // value={formData.vehicles_register_date}
-                                    value={formData.vehicles_register_date ? formData.vehicles_register_date.split("T")[0] : ""}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Condition</label>
-                                <input
-                                    type="text"
-                                    name="vehicles_condition"
-                                    className="form-control"
-                                    value={formData.vehicles_condition}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Seats</label>
-                                <input
-                                    type="number"
-                                    name="number_of_seats"
-                                    className="form-control"
-                                    value={formData.number_of_seats}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Doors</label>
-                                <input
-                                    type="number"
-                                    name="number_of_doors"
-                                    className="form-control"
-                                    value={formData.number_of_doors}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Total Rows</label>
-                                <input
-                                    type="number"
-                                    name="total_rows"
-                                    className="form-control"
-                                    value={formData.total_rows}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Total Columns</label>
-                                <input
-                                    type="number"
-                                    name="total_columns"
-                                    className="form-control"
-                                    value={formData.total_columns}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Passenger Capacity</label>
-                                <input
-                                    type="number"
-                                    name="passenger_capacity"
-                                    className="form-control"
-                                    value={formData.passenger_capacity}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Image</label>
-                                <input
-                                    type="file"
-                                    name="vehicle_image"
-                                    className="form-control"
-                                    ref={fileInputRef}
-                                    onChange={(e) => setFile(e.target.files[0])}
-                                />
-                                {editId && formData.vehicle_image && (
-                                    <div className="mt-2">
-                                        <img
-                                            src={formData.vehicle_image}
-                                            alt="Current"
-                                            width="100"
-                                            className="border rounded"
-                                        />
-                                        <p className="text-muted small">Current Image</p>
-                                    </div>
-                                )}
-                            </div>
-
-
-
-                            <div className="col-md-3 mb-2">
-                                <label className="form-label">Status</label>
-                                <select
-                                    name="status"
-                                    className="form-select"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                >
-                                    <option value={'Active'}>Active</option>
-                                    <option value={'Inactive'}>Inactive</option>
-                                    <option value={'UnderMaintenance'}>UnderMaintenance</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <button type="submit" className="btn btn-primary me-2">
-                            {editId ? "Update" : "Add"}
-                        </button>
-                        <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => setShowForm(false)}
-                        >
-                            Cancel
-                        </button>
-                    </form>
-
+            {/* Filters */}
+            <div className="row mb-3">
+                <div className="col-md-3 mb-2">
+                    <select
+                        className="form-select"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                        <option value="">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="UnderMaintenance">Under Maintenance</option>
+                    </select>
                 </div>
-            )}
+                <div className="col-md-3 mb-2">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Search Vehicle Number"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="col-md-2 mb-2">
+                    <button
+                        className="btn btn-secondary w-100"
+                        onClick={() => { setStatusFilter(''); setSearchTerm(''); }}
+                    >
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
 
-            {/* Scrollable Table */}
-            <div style={{ maxHeight: '80vh', overflowX: 'auto', border: '1px solid #dee2e6' }}>
-                <table className="table table-striped table-hover ">
-                    <thead className="table-light">
+            {/* Vehicles Table */}
+            <div className="table-responsive">
+                <table className="table table-bordered align-middle text-center shadow-sm rounded-3" style={{ borderRadius: "12px", overflow: "hidden" }}>
+                    <thead className="table-dark" style={{ borderRadius: "12px 12px 0 0 " }}>
                         <tr>
                             <th>ID</th>
                             <th>VEHICLE TYPE</th>
@@ -375,65 +219,68 @@ function Vehicles() {
                             <th>DOORS</th>
                             <th>ROWS</th>
                             <th>COLUMNS</th>
-                            <th>PASSENGER CAP</th>
+                            <th>PASSENGER CAP.</th>
                             <th>IMAGE</th>
                             <th>STATUS</th>
                             <th>ADD USER</th>
                             <th>ACTIONS</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody style={{ backgroundColor: "#fff", marginTop: "10px",  }}>
                         {loading ? (
-                            <tr><td colSpan="16" className="text-center">Loading...</td></tr>
+                            <tr><td colSpan="16" className="text-center py-3">Loading...</td></tr>
                         ) : currentData.length === 0 ? (
-                            <tr><td colSpan="16" className="text-center">No vehicles found</td></tr>
-                        ) : currentData
-                        .filter(vehicle => vehicle.record_status === 1)
-                        .map((vehicle, index) => (
-                            <tr key={vehicle.vehicles_id || index}>
-                                <td>{vehicle.vehicles_id}</td>
-                                <td>{vehicle.vehicles_type}</td>
-                                <td>{vehicle.brand}</td>
-                                <td>{vehicle.model_name}</td>
-                                <td>{vehicle.vehicles_number}</td>
-                                <td>{vehicle.vehicles_register_date ? vehicle.vehicles_register_date.split("T")[0] : ""}</td>
-                                <td>{vehicle.vehicles_condition}</td>
-                                <td>{vehicle.number_of_seats}</td>
-                                <td>{vehicle.number_of_doors}</td>
-                                <td>{vehicle.total_rows}</td>
-                                <td>{vehicle.total_columns}</td>
-                                <td>{vehicle.passenger_capacity}</td>
-                                <td>{vehicle.vehicle_image ? <img src={vehicle.vehicle_image} alt="vehicle" width="100" /> : 'N/A'}</td>
-                                <td>{vehicle.status}</td>
-                                <td>{vehicle.adduid}</td>
-                                <td>
-                                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(vehicle)}><PencilSquare /></button>
-                                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(vehicle.vehicles_id)}><Trash /></button>
-                                </td>
-                            </tr>
-                        ))}
+                            <tr><td colSpan="16" className="text-center py-3 text-muted">No vehicles found</td></tr>
+                        ) : (
+                            currentData.map((vehicle, index) => (
+                                <tr key={vehicle.vehicles_id || index}>
+                                    <td>{vehicle.vehicles_id}</td>
+                                    <td>{vehicle.vehicles_type}</td>
+                                    <td>{vehicle.brand}</td>
+                                    <td>{vehicle.model_name}</td>
+                                    <td>{vehicle.vehicles_number}</td>
+                                    <td>{vehicle.vehicles_register_date?.split("T")[0] || "-"}</td>
+                                    <td>{vehicle.vehicles_condition}</td>
+                                    <td>{vehicle.number_of_seats}</td>
+                                    <td>{vehicle.number_of_doors}</td>
+                                    <td>{vehicle.total_rows}</td>
+                                    <td>{vehicle.total_columns}</td>
+                                    <td>{vehicle.passenger_capacity}</td>
+                                    <td>
+                                        {vehicle.vehicle_image
+                                            ? <img src={vehicle.vehicle_image} alt="vehicle" width="80" height="50" className="rounded border" />
+                                            : <span className="text-muted">N/A</span>}
+                                    </td>
+                                    <td>
+                                        {vehicle.status === "Active" ? (
+                                            <span className="badge bg-success px-3 py-2 fs-6">Active</span>
+                                        ) : vehicle.status === "Inactive" ? (
+                                            <span className="badge bg-danger px-3 py-2 fs-6">Stopped</span>
+                                        ) : (
+                                            <span className="badge bg-warning px-3 py-2 fs-6">Under Maintenance</span>
+                                        )}
+                                    </td>
+                                    <td>{vehicle.adduid}</td>
+                                    <td>
+                                        <div className="d-flex justify-content-center">
+                                            <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(vehicle)}><PencilSquare /></button>
+                                            <button className="btn btn-sm btn-danger" onClick={() => handleDelete(vehicle.vehicles_id)}><Trash /></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
 
             {/* Pagination */}
-            <div className="d-flex justify-content-center mt-3">
-                <nav>
-                    <ul className="pagination">
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>Previous</button>
-                        </li>
-                        {Array.from({ length: totalPages }, (_, i) => (
-                            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
-                            </li>
-                        ))}
-                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}>Next</button>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+            <Pagination
+                          currentPage={currentPage}
+                          totalItems={totalPages.length}
+                          itemsPerPage={itemsPerPage}
+                          onPageChange={setCurrentPage}
+                        />
         </div>
     );
 }

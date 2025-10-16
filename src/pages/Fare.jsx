@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../AuthContext';
 import CONFIG from '../Config';
 import { PencilSquare, Trash } from 'react-bootstrap-icons';
+import Pagination from '../components/Pagination';
 
 function Fare() {
     const { token, user } = useContext(AuthContext);
@@ -9,7 +10,7 @@ function Fare() {
     const [data, setData] = useState([]);
     const [editId, setEditId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(5);
+    const [itemsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
     const [filteredFares, setFilteredFares] = useState([]);
     const [formData, setFormData] = useState({
@@ -52,7 +53,9 @@ function Fare() {
                 },
             });
             const Fare = await res.json();
+            console.log(Fare[0]);
             setData(Fare[0] || []);
+            // console.log('Set Data:',setData);
         } catch (err) {
             console.error(err);
         } finally {
@@ -146,7 +149,7 @@ function Fare() {
 
     return (
         <>
-            <div className="container" style={{ maxWidth: '75rem' }}>
+            <div className="container-fluid" >
                 <div className="d-flex justify-content-between align-items-center mb-3">
                     <h2>Fare</h2>
                     <button className="btn btn-success" onClick={handleAdd}>Add Fare</button>
@@ -173,7 +176,7 @@ function Fare() {
                     >
                         <option value="">All Status</option>
                         <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Inactive">Stopped</option>
                     </select>
                 </div>
                 {/* Form */}
@@ -233,7 +236,7 @@ function Fare() {
                                                 onChange={handleChange}
                                             >
                                                 <option value="Active">Active</option>
-                                                <option value="Inactive">Inactive</option>
+                                                <option value="Inactive">Stopped</option>
                                             </select>
                                         </div>
                                     </>
@@ -251,9 +254,10 @@ function Fare() {
                 )}
 
                 {/* Table */}
-                <div style={{ maxHeight: '80vh', overflowX: 'auto', border: '1px solid #dee2e6' }}>
-                    <table className="table table-striped table-hover">
-                        <thead className="table-light">
+                <div style={{ maxHeight: '80vh', overflowX: 'auto',}}>
+                    <div className="table-responsive">
+                    <table className="table table-bordered align-middle text-center shadow-sm rounded-3" style={{ borderRadius: "12px", overflow: "hidden" }}>
+                        <thead className="table-dark" style={{ borderRadius: "12px 12px 0 0 " }}>
                             <tr>
                                 <th>ID</th>
                                 <th>FARE TYPE</th>
@@ -265,7 +269,7 @@ function Fare() {
                                 <th>ACTION</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style={{ backgroundColor: "#fff", marginTop: "10px", display: "table-row-group"}}>
                             {loading ? (
                                 <tr>
                                     <td colSpan="16" className='text-center'>Loading..</td>
@@ -281,7 +285,11 @@ function Fare() {
                                     <td>{fare.fare_per_stop}</td>
                                     <td>{fare.base_fare}</td>
                                     <td>{fare.fare_per_KM}</td>
-                                    <td>{fare.status}</td>
+                                    <td>{fare.status === 'Active' ? (
+                                        <span className="badge bg-success px-3 py-2 fs-6">Active</span>
+                                    ) : (
+                                        <span className="badge bg-danger px-3 py-2 fs-6">Stopped</span>
+                                    )}</td>
                                     <td>{fare.adduid}</td>
                                     <td>
                                         <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(fare)}><PencilSquare /></button>
@@ -291,26 +299,16 @@ function Fare() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </div>
 
                 {/* Pagination */}
-                <div className="d-flex justify-content-center mt-3">
-                    <nav>
-                        <ul className="pagination">
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>Previous</button>
-                            </li>
-                            {Array.from({ length: totalPages }, (_, i) => (
-                                <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
-                                </li>
-                            ))}
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}>Next</button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+               <Pagination
+                             currentPage={currentPage}
+                             totalItems={totalPages.length}
+                             itemsPerPage={itemsPerPage}
+                             onPageChange={setCurrentPage}
+                           />
             </div>
         </>
     )

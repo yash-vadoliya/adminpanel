@@ -32,22 +32,19 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
-
-.react-calendar__tile.highlight-holiday {
-  background-color: #ffcccc;
-  color: red;
-  font-weight: bold;
-}
-
+/* Slide-in Trip Details Panel */
 .details-panel {
-    position: fixed;
-  top: 50px;          /* space from top */
-  bottom: 150px;       /* space from bottom */
+  position: fixed;
+  top: 50px;
+  /* space from top */
+  bottom: 150px;
+  /* space from bottom */
   right: -100%;
   width: 35%;
   /* background: #fff;
@@ -56,11 +53,13 @@
   transition: right 0.4s ease-in-out;
   z-index: 1050;
   padding: 20px;
-  border-radius: 8px; 
+  border-radius: 8px;
+
 }
 
 .details-panel.show {
   right: 0;
+
 }
 
 .details-overlay {
@@ -71,4 +70,85 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
   z-index: 1049;
+  height: 100vh;
+}
+
+.bg-light-warning {
+  background-color: #fff7e6 !important;
+}
+
+textarea {
+  resize: none;
+}
+
+/* Holiday Calender Style */
+.grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.header-cell {
+  text-align: center;
+  font-weight: 600;
+  background: #f1f3f5;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.day-cell {
+  border: 1px solid #ddd;
+  padding: 6px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.day-cell.holiday {
+  background-color: #f8d7da; /* red for holiday/Sunday */
+}
+
+.day-cell.today {
+  background-color: #d4edda; /* green for today */
+}
+
+.day-cell.past {
+  background-color: #6c757d7a; /* dark for past */
+  color: #fff;
+}
+
+.day-cell .day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.header-cell {
+  text-align: center;
+}
+
+.empty {
+  background-color: transparent;
 }

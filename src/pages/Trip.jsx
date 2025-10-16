@@ -4,6 +4,7 @@ import CONFIG from "../Config";
 import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
 import Select from "react-select"; // ✅ import react-select
 import "../App.css";
+import Pagination from "../components/Pagination";
 
 function TripForm() {
     const { token, user } = useContext(AuthContext);
@@ -495,26 +496,9 @@ function TripForm() {
             )}
 
             {/* Trips Table */}
-            <div className="table-responsive mt-4">
+            <div className="table-responsive mt-4 ">
                 <table className="table table-bordered align-middle text-center shadow-sm fs-5">
                     <thead className="table-dark">
-                        {/* <tr>
-                            <th>ID</th>
-                            <th>TRIP NAME</th>
-                            <th>ROUTE</th>
-                            <th>DRIVER</th>
-                            <th>VEHICLE</th>
-                            <th>TRIP BOOKING DATE</th>
-                            <th>POLICY</th>
-                            <th>PROMOTION</th>
-                            <th>TRIP DATE FROM</th>
-                            <th>TRIP DATE TO</th>
-                            <th>TIME FROM</th>
-                            <th>TIME TO</th>
-                            <th>DAY</th>
-                            <th>FARE</th>
-                            <th>ACTION</th>
-                        </tr> */}
                         <tr>
                             <th>ID</th>
                             <th>TRIP NAME</th>
@@ -527,36 +511,6 @@ function TripForm() {
                     </thead>
                     <tbody>
                         {currentData.map((t, i) => (
-                            // <tr key={i}>
-                            //     <td>{t.trip_id}</td>
-                            //     <td>{t.trip_name}</td>
-                            //     <td>{getRouteName(t.route_id)}</td>
-                            //     <td>{getDriverName(t.driver_id)}</td>
-                            //     <td>{getVehicles(t.vehicle_id)}</td>
-                            //     <td>{getPolicy(t.policy_id)}</td> 
-                            //     <td>{getPromo(t.promotion_id)}</td>
-                            //     <td>{t.trip_booked_date?.split("T")[0]}</td>
-                            //     <td>{t.trip_date_from?.split("T")[0]}</td>
-                            //     <td>{t.trip_date_to?.split("T")[0]}</td>
-                            //     <td>{t.trip_time_from}</td>
-                            //     <td>{t.trip_time_to}</td>
-                            //     <td>{t.trip_day}</td>
-                            //     <td>{t.trip_fare}</td>
-                            //     <td>
-                            //         <button
-                            //             className="btn btn-warning btn-sm me-2"
-                            //             onClick={() => handleEdit(t)}
-                            //         >
-                            //             <PencilSquare />
-                            //         </button>
-                            //         <button
-                            //             className="btn btn-danger btn-sm"
-                            //             onClick={() => handleDelete(t.trip_id)}
-                            //         >
-                            //             <Trash />
-                            //         </button>
-                            //     </td>
-                            // </tr>
                             <tr key={i}>
                                 <td>{t.trip_id}</td>
                                 <td>{t.trip_name}</td>
@@ -669,7 +623,7 @@ function TripForm() {
 
 
             {/* Pagination */}
-            <div className="d-flex justify-content-center mt-3">
+            {/* <div className="d-flex justify-content-center mt-3">
                 <nav>
                     <ul className="pagination">
                         <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
@@ -707,9 +661,17 @@ function TripForm() {
                             </button>
                         </li>
                     </ul>
-                </nav>
-            </div>
+                </nav>  
+            </div> */}
+            <Pagination
+                currentPage={currentPage}
+                totalItems={totalPages.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+            />
+
         </div>
+
     );
 }
 

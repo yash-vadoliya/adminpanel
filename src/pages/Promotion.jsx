@@ -3,6 +3,8 @@ import { AuthContext } from "../AuthContext";
 import CONFIG from "../Config";
 import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
 import "../App.css";
+import Pagination from "../components/Pagination";
+
 
 function Promotion() {
   const { token, user } = useContext(AuthContext);
@@ -223,9 +225,9 @@ function Promotion() {
       )}
 
       {/* Table */}
-      <div className="card p-3 shadow">
+      <div>
         <h5>Promotion List</h5>
-        <div className="table-responsive mt-3">
+        <div className="table-responsive mt-3 rounded-5" >
           <table className="table table-bordered align-middle text-center shadow-sm">
             <thead className="table-dark">
               <tr>
@@ -236,6 +238,7 @@ function Promotion() {
                 <th>Start</th>
                 <th>End</th>
                 <th>Status</th>
+                <th>Code</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -256,12 +259,13 @@ function Promotion() {
                         <span className="badge bg-danger px-3 py-2">Inactive</span>
                       )}
                     </td>
+                    <td>{p.promo_code}</td>
                     <td>
                       <button
                         className="btn btn-info btn-sm me-2"
                         onClick={() => setSelectedPromo(p)}
                       >
-                        <Eye />
+                        <Eye /> View
                       </button>
                       <button
                         className="btn btn-warning btn-sm me-2"
@@ -289,99 +293,99 @@ function Promotion() {
 
 
 
-      {/* ✅ Sliding Detail Panel */}
-      {selectedPromo && (
-        <>
-          <div
-            className="details-overlay"
-            onClick={() => setSelectedPromo(null)}
-          ></div>
+        {/* ✅ Sliding Detail Panel */}
+        {selectedPromo && (
+          <>
+            <div
+              className="details-overlay"
+              onClick={() => setSelectedPromo(null)}
+            ></div>
 
-          <div className="details-panel show">
-            <div className="card shadow-lg">
-              <div className="card-header  d-flex justify-content-between align-items-center">
-              <h4 className="mb-0 text-center flex-grow-1 fs-3">Promotion Details</h4>
-              <button
-                className="btn btn-light btn-sm"
-                onClick={() => setSelectedPromo(null)}
-              >
-                ✖
-              </button>
-              </div>
-              
-          
-           <div className="card-body fs-5">
-              <div className="row g-3 mb-3">
-                <div className="col-md-6"><strong className="text-success">Promotion Title </strong>{setSelectedPromo.promotion_title}</div>
-                <div className="col-md-6"><strong className="text-success">Promotion Type</strong>{setSelectedPromo.promo_type}</div>
-              </div>
-              <hr />
-              <div className="row g-3 mb-3">
-                <div className="col-md-6"><strong className="text-success">Discount Value</strong>{setSelectedPromo.discount_value}</div>
-                <div className="col-md-6"><strong className="text-success">Maximum Discount</strong>{setSelectedPromo.max_discount}</div>
-                
-              </div>
-              <hr />
-              <div className="row g-3 mb-3">
-                <div className="col-md-6"><strong className="text-success">Date From</strong>{setSelectedPromo.start_date?.split("T")[0]}</div>
-                <div className="col-md-6"><strong className="text-success">Max Allowed</strong>{setSelectedPromo.max_allowed}</div>
-                <div className="col-md-6"><strong className="text-success">User Limit</strong>{setSelectedPromo.per_user_limit}</div>
-              </div>
-              <hr />
-              <div className="row g-3 mb-3">
-                  <div className="col-md-6"><strong className="text-success">Status</strong>{setSelectedPromo.status === 'Active' ? (<span className="badge bg-success px-3 py-2 fs-6">Active</span>) : (<span className="badge bg-danger px-3 py-2 fs-6">Stopped</span>)}</div>
-                  <div className="col-md-6"><strong className="text-success">Add User ID</strong>{setSelectedPromo.adduid}</div>
-                  <div className="col-md-12"><strong className="text-success">Promocode</strong><span className="fs-3 bg-light">{setSelectedPromo.promo_code}</span></div>
-              </div>
-           </div>
-             </div>
-
-          </div>
-        </>
-      )}
-
-
-              {/* Pagination */}
-        <div className="d-flex justify-content-center mt-3">
-          <nav>
-            <ul className="pagination">
-              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                >
-                  Previous
-                </button>
-              </li>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <li
-                  key={i}
-                  className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
-                >
+            <div className="details-panel show" >
+              <div className="card shadow-lg">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                  <h4 className="mb-0 text-center flex-grow-1 fs-3">
+                    Promotion Details
+                  </h4>
                   <button
-                    className="page-link"
-                    onClick={() => +(i + 1)}
+                    className="btn btn-light btn-sm"
+                    onClick={() => setSelectedPromo(null)}
                   >
-                    {i + 1}
+                    ✖
                   </button>
-                </li>
-              ))}
-              <li
-                className={`page-item ${currentPage === totalPages ? "disabled" : ""
-                  }`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(p + 1, totalPages))
-                  }
-                >
-                  Next
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+                </div>
+
+                <div className="card-body">
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <strong className="text-success">Promotion Title : </strong>
+                      {selectedPromo.promotion_title}
+                    </div>
+                    <div className="col-md-6">
+                      <strong className="text-success">Promotion Type : </strong>
+                      {selectedPromo.promo_type}
+                    </div>
+                  </div>
+                  <hr />
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <strong className="text-success">Discount Value :  </strong>
+                      {selectedPromo.discount_value}
+                    </div>
+                    <div className="col-md-6">
+                      <strong className="text-success">Maximum Discount :  </strong>
+                      {selectedPromo.max_discount}
+                    </div>
+                  </div>
+                  <hr />
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <strong className="text-success">Date From :  </strong>
+                      {selectedPromo.start_date?.split("T")[0]}
+                    </div>
+                    <div className="col-md-6">
+                      <strong className="text-success">Max Allowed : </strong>
+                      {selectedPromo.max_allowed}
+                    </div>
+                    <div className="col-md-6">
+                      <strong className="text-success">User Limit :  </strong>
+                      {selectedPromo.per_user_limit}
+                    </div>
+                  </div>
+                  <hr />
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <strong className="text-success">Status :  </strong>
+                      {selectedPromo.status === "Active" ? (
+                        <span className="badge bg-success px-3 py-2 fs-6">Active</span>
+                      ) : (
+                        <span className="badge bg-danger px-3 py-2 fs-6">Stopped</span>
+                      )}
+                    </div>
+                    <div className="col-md-6">
+                      <strong className="text-success">Add User ID :  </strong>
+                      {selectedPromo.adduid}
+                    </div>
+                    <div className="col-md-12">
+                      <strong className="text-success">Promo Code : </strong>
+                      <span className="fs-3 bg-light">{selectedPromo.promo_code}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+
+        {/* Pagination */}
+        <Pagination
+  currentPage={currentPage}
+  totalItems={totalPages.length}
+  itemsPerPage={itemsPerPage}
+  onPageChange={setCurrentPage}
+/>
+
       </div>
     </div>
   );
