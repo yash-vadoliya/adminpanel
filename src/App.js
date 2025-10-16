@@ -22,6 +22,7 @@ import Cencellation from './pages/Cencellation';
 import Promotion from './pages/Promotion';
 import SuggestedRoutes from "./pages/SuggestedRoutes";
 import Holiday from "./pages/Holiday";
+import Customer from "./pages/Customer";
 
 // Layout component for pages with sidebar
 function Layout({ isSidebarExpanded, toggleSidebar }) {
@@ -41,7 +42,7 @@ function Layout({ isSidebarExpanded, toggleSidebar }) {
       >
         <Outlet /> {/* 👈 nested route content renders here */}
       </div>
-    </div>
+    </div> 
   );
 }
 
@@ -76,18 +77,19 @@ function App() {
           }
         >
           <Route path="/dashboard" element={<PrivateRoute><Deshboard /></PrivateRoute>} />
-          <Route path="/mapview" element={<PrivateRoute><Mapview /></PrivateRoute>} />
-          <Route path="/geofance" element={<PrivateRoute><Geofance /></PrivateRoute>} />
-          <Route path="/stops" element={<PrivateRoute><Stops /></PrivateRoute>} />
+          <Route path="/mapview" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Mapview /></PrivateRoute>} />
+          <Route path="/geofance" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Geofance /></PrivateRoute>} />
+          <Route path="/stops" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Stops /></PrivateRoute>} />
           <Route path="/routes" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><My_Routes /></PrivateRoute>} />
-          <Route path="/vehicles" element={<PrivateRoute><Vehicles /></PrivateRoute>} />
-          <Route path="/fare" element={<PrivateRoute><Fare /></PrivateRoute>} />
-          <Route path="/trip" element={<PrivateRoute><Trip /></PrivateRoute>} />
-          <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
-          <Route path="/cancel" element={<PrivateRoute><Cencellation /></PrivateRoute>} />
-          <Route path="/promo" element={<PrivateRoute><Promotion /></PrivateRoute>} />
-          <Route path="/suggestedroutes" element={<PrivateRoute><SuggestedRoutes /></PrivateRoute>} />
-          <Route path="/holiday" element={<PrivateRoute><Holiday /></PrivateRoute>} />
+          <Route path="/vehicles" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Vehicles /></PrivateRoute>} />
+          <Route path="/fare" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Fare /></PrivateRoute>} />
+          <Route path="/trip" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Trip /></PrivateRoute>} />
+          <Route path="/analytics" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Analytics /></PrivateRoute>} />
+          <Route path="/cancel" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Cencellation /></PrivateRoute>} />
+          <Route path="/promo" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Promotion /></PrivateRoute>} />
+          <Route path="/suggestedroutes" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><SuggestedRoutes /></PrivateRoute>} />
+          <Route path="/holiday" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Holiday /></PrivateRoute>} />
+          <Route path="/customer" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Customer /></PrivateRoute>} />
 
         </Route>
       </Routes>
