@@ -1,49 +1,49 @@
-// ✅ Customer.jsx
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../AuthContext";
 import CONFIG from "../Config";
 import Pagination from "../components/Pagination";
-import { PencilSquare, Trash } from "react-bootstrap-icons";
+import { PencilSquare, Trash, X } from "react-bootstrap-icons";
 
 function Customer() {
   const { token, user } = useContext(AuthContext);
+
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
+
   const [formData, setFormData] = useState({
+    trip_id: "",
     customer_name: "",
     email: "",
-    phone_number: "",
-    verified_status: "",
+    customer_phone_number: "",
     gender: "",
     date_of_birth: "",
-    city: "",
-    active_status: "",
-    customer_image: "",
+    city_id: "",
+    total_trips: 0,
+    active_status: "1",
+    customer_image: null,
     adduid: user?.user_id || "",
   });
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-
+  // Fetch all customers
   useEffect(() => {
     fetchCustomers();
   }, []);
 
-  // ✅ Fetch Customers
   const fetchCustomers = async () => {
     setLoading(true);
     try {
       const res = await fetch(`${CONFIG.API_BASE_URL}/customer`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      const flatCustomer = Array.isArray(data) ? data.flat() : [];
-      setCustomers(flatCustomer);
+      setCustomers(data[0] || []);
     } catch (err) {
       console.error("Error fetching customers:", err);
     } finally {
@@ -51,20 +51,18 @@ function Customer() {
     }
   };
 
-  // ✅ Handle Input Change
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "customer_image" && files.length > 0) {
       setFormData((prev) => ({ ...prev, [name]: files[0] }));
+      setImagePreview(URL.createObjectURL(files[0]));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // ✅ Add or Update Customer
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, val]) => {
@@ -85,19 +83,10 @@ function Customer() {
       if (res.ok) {
         alert(editId ? "Customer updated successfully!" : "Customer added successfully!");
         fetchCustomers();
-        setEditId(null);
-        setFormData({
-          customer_name: "",
-          email: "",
-          phone_number: "",
-          verified_status: "",
-          gender: "",
-          date_of_birth: "",
-          city: "",
-          active_status: "",
-          customer_image: "",
-          adduid: user?.user_id || "",
-        });
+        // resetForm();
+        // setEditId(null);
+        setShowForm(false);
+        // window.re
       } else {
         const err = await res.json();
         alert("Error: " + (err.message || "Unknown error"));
@@ -107,104 +96,87 @@ function Customer() {
     }
   };
 
-  // ✅ Edit Customer
-  // const handleEdit = (cust) => {
-  //     let formattedDOB = "";
-  // if (cust.date_of_birth) {
-  //   try {
-  //     formattedDOB = new Date(cust.date_of_birth).toISOString().split("T")[0];
-  //   } catch {
-  //     formattedDOB = cust.date_of_birth; // fallback if already in YYYY-MM-DD
-  //   }
-  // }
+  const resetForm = () => {
+    setFormData({
+      trip_id: "",
+      customer_name: "",
+      email: "",
+      customer_phone_number: "",
+      gender: "",
+      date_of_birth: "",
+      city_id: "",
+      total_trips: 0,
+      active_status: "1",
+      customer_image: null,
+      adduid: user?.user_id || "",
+    });
+    setImagePreview("");
+  };
 
-  //   setEditId(cust.customer_id);
-  //   setFormData({
-  //     customer_name: cust.customer_name,
-  //     email: cust.email,
-  //     phone_number: cust.phone_number,
-  //     verified_status: cust.verified_status,
-  //     gender: cust.gender,
-  //     date_of_birth: formattedDOB ,
-  //     city: cust.city,
-  //     active_status: cust.active_status,
-  //     customer_image: cust.customer_image || "",
-  //     adduid: cust.adduid,
-  //   });
-  //   window.scrollTo({ top: 0, behavior: "smooth" });
-  // };
   const handleEdit = (cust) => {
-  const formattedDOB = cust.date_of_birth
-    ? new Date(cust.date_of_birth).toISOString().split("T")[0]
-    : "";
+    setEditId(cust.customer_id);
+    setFormData({
+      trip_id: cust.trip_id || "",
+      customer_name: cust.customer_name || "",
+      email: cust.email || "",
+      customer_phone_number: cust.customer_phone_number || "",
+      gender: cust.gender || "",
+      date_of_birth: cust.date_of_birth ? new Date(cust.date_of_birth).toISOString().split("T")[0] : "",
+      city_id: cust.city_id || "",
+      total_trips: cust.total_trips || 0,
+      active_status: cust.active_status?.toString() || "1",
+      customer_image: null,
+      adduid: cust.adduid || user?.user_id || "",
+    });
+    setImagePreview(cust.customer_image || "");
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  setEditId(cust.customer_id);
-  setFormData({
-    customer_name: cust.customer_name || "",
-    email: cust.email || "",
-    phone_number: cust.phone_number || "",
-    verified_status: cust.verified_status || "",
-    gender: cust.gender || "",
-    date_of_birth: formattedDOB,
-    city: cust.city || "",
-    active_status: cust.active_status || "",
-    customer_image: cust.customer_image || "",
-    adduid: cust.adduid || user?.user_id || "",
-  });
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-
-
-  // ✅ Delete Customer
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this customer?")) return;
+    if (!window.confirm("Are you sure you want to delete this record?")) return;
     try {
       const res = await fetch(`${CONFIG.API_BASE_URL}/customer/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) {
-        alert("Customer deleted!");
-        fetchCustomers();
-      }
+      if (res.ok) fetchCustomers();
     } catch (err) {
       console.error("Delete error:", err);
     }
   };
 
-  // ✅ Export CSV
   const exportCSV = () => {
     if (!customers.length) return alert("No records available to export!");
-
     const header = [
       "customer_id",
+      "trip_id",
       "customer_name",
       "email",
-      "phone_number",
-      "verified_status",
+      "customer_phone_number",
       "gender",
       "date_of_birth",
-      "city",
+      "city_id",
+      "total_trips",
       "active_status",
+      "customer_image",
       "adduid",
     ];
-
     const rows = customers.map((c) => [
       c.customer_id,
+      c.trip_id,
       c.customer_name,
       c.email,
-      c.phone_number,
-      c.verified_status,
+      c.customer_phone_number,
       c.gender,
       c.date_of_birth,
-      c.city,
+      c.city_id,
+      c.total_trips,
       c.active_status,
+      c.customer_image,
       c.adduid,
     ]);
-
-    const csvContent =
-      [header, ...rows].map((r) => r.map((v) => `"${v ?? "-"}"`).join(",")).join("\n");
+    const csvContent = [header, ...rows].map((r) => r.map((v) => `"${v ?? "-"}"`).join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -212,113 +184,97 @@ function Customer() {
     link.click();
   };
 
-  // ✅ Pagination Logic
-  const totalPages = Math.ceil(customers.length / itemsPerPage);
+  const filteredCustomers = customers.filter(
+    (c) =>
+      c.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.customer_phone_number?.includes(searchQuery)
+  );
+
+  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = customers.slice(startIndex, startIndex + itemsPerPage);
+  const currentData = filteredCustomers.slice(startIndex, startIndex + itemsPerPage);
+
+  const clearSearch = () => setSearchQuery("");
 
   return (
     <div className="container-fluid">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Customer Management</h2>
-        <button className="btn btn-success" onClick={exportCSV}>
-          Export CSV
-        </button>
+        <div>
+          <button className="btn btn-success me-2" onClick={() => setShowForm(!showForm)}>
+            {showForm ? "Hide Form" : editId ? "Update Customer" : "Add Customer"}
+          </button>
+          <button className="btn btn-secondary" onClick={exportCSV}>Export CSV</button>
+        </div>
       </div>
 
-      {/* ✅ Form */}
-      <form onSubmit={handleSubmit} className="row g-3 bg-light p-3 rounded shadow-sm">
-        <div className="col-md-4">
-          <input
-            type="text"
-            name="customer_name"
-            className="form-control"
-            placeholder="Customer Name"
-            value={formData.customer_name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="col-md-4">
-          <input
-            type="email"
-            name="email"
-            className="form-control"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="col-md-4">
-          <input
-            type="text"
-            name="phone_number"
-            className="form-control"
-            placeholder="Phone Number"
-            value={formData.phone_number}
-            onChange={handleChange}
-          />
-        </div>
+      {/* Search Box */}
+      <div className="mb-3 d-flex align-items-center">
+        <input
+          type="text"
+          className="form-control me-2"
+          placeholder="Search by name, email, phone..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button className="btn btn-outline-secondary" onClick={clearSearch}><X /></button>
+        )}
+      </div>
 
-        <div className="col-md-3">
-          <input
-            type="text"
-            name="gender"
-            className="form-control"
-            placeholder="Gender"
-            value={formData.gender}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="col-md-3">
-          <input
-            type="date"
-            name="date_of_birth"
-            className="form-control"
-            value={formData.date_of_birth}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="col-md-3">
-          <input
-            type="text"
-            name="city"
-            className="form-control"
-            placeholder="City"
-            value={formData.city}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="col-md-3">
-          <select
-            name="active_status"
-            className="form-select"
-            value={formData.active_status}
-            onChange={handleChange}
-          >
-            <option value="">Select Status</option>
-            <option value="1">Active</option>
-            <option value="0">Inactive</option>
-          </select>
-        </div>
-        <div className="col-md-4">
-          <input
-            type="file"
-            name="customer_image"
-            className="form-control"
-            onChange={handleChange}
-          />
-        </div>
+      {/* Form Section */}
+      {showForm && (
+        <form onSubmit={handleSubmit} className="row g-3 bg-light p-3 rounded shadow-sm mb-4">
+          <div className="col-md-3">
+            <input type="number" name="trip_id" className="form-control" placeholder="Trip ID" value={formData.trip_id} onChange={handleChange} required />
+          </div>
+          <div className="col-md-3">
+            <input type="text" name="customer_name" className="form-control" placeholder="Customer Name" value={formData.customer_name} onChange={handleChange} required />
+          </div>
+          <div className="col-md-3">
+            <input type="email" name="email" className="form-control" placeholder="Email" value={formData.email} onChange={handleChange} />
+          </div>
+          <div className="col-md-3">
+            <input type="text" name="customer_phone_number" className="form-control" placeholder="Phone Number" value={formData.customer_phone_number} onChange={handleChange} />
+          </div>
 
-        <div className="col-12">
-          <button className="btn btn-primary" type="submit">
-            {editId ? "Update Customer" : "Add Customer"}
-          </button>
-        </div>
-      </form>
+          <div className="col-md-2">
+            <select name="gender" className="form-select" value={formData.gender} onChange={handleChange}>
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div className="col-md-2">
+            <input type="date" name="date_of_birth" className="form-control" value={formData.date_of_birth} onChange={handleChange} />
+          </div>
+          <div className="col-md-2">
+            <input type="number" name="city_id" className="form-control" placeholder="City ID" value={formData.city_id} onChange={handleChange} />
+          </div>
+          <div className="col-md-2">
+            <input type="number" name="total_trips" className="form-control" placeholder="Total Trips" value={formData.total_trips} onChange={handleChange} />
+          </div>
+          <div className="col-md-2">
+            <select name="active_status" className="form-select" value={formData.active_status} onChange={handleChange}>
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
+          </div>
+          <div className="col-md-4">
+            <input type="file" name="customer_image" className="form-control" onChange={handleChange} />
+            {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 rounded border" height={50} width={80} />}
+          </div>
+          <div className="col-12 d-flex gap-2">
+            <button className="btn btn-primary" type="submit">{editId ? "Update Customer" : "Add Customer"}</button>
+            <button className="btn btn-secondary" type="button" onClick={() => setShowForm(false)}>Cancel</button>
+          </div>
+        </form>
+      )}
 
-      {/* ✅ Table */}
-      <div className="table-responsive mt-4">
+      {/* Table */}
+      <div className="table-responsive">
         {loading ? (
           <p className="text-center fs-5">Loading customers...</p>
         ) : (
@@ -326,12 +282,14 @@ function Customer() {
             <thead className="table-dark">
               <tr>
                 <th>ID</th>
+                <th>Trip ID</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Gender</th>
                 <th>DOB</th>
-                <th>City</th>
+                <th>City ID</th>
+                <th>Total Trips</th>
                 <th>Status</th>
                 <th>Added By</th>
                 <th>Image</th>
@@ -343,65 +301,38 @@ function Customer() {
                 currentData.map((c, i) => (
                   <tr key={i}>
                     <td>{c.customer_id}</td>
+                    <td>{c.trip_id}</td>
                     <td>{c.customer_name}</td>
                     <td>{c.email}</td>
-                    <td>{c.phone_number}</td>
+                    <td>{c.customer_phone_number}</td>
                     <td>{c.gender}</td>
-                    <td>{c.date_of_birth}</td>
-                    <td>{c.city}</td>
+                    <td>{c.date_of_birth?.split("T")[0] || "-"}</td>
+                    <td>{c.city_id}</td>
+                    <td>{c.total_trips}</td>
                     <td>
-                      {c.active_status === 1 ? (
-                        <span className="badge bg-success px-3 py-2 fs-6">Active</span>
-                      ) : (
-                        <span className="badge bg-danger px-3 py-2 fs-6">Inactive</span>
-                      )}
+                      {c.active_status === 1 ? <span className="badge bg-success px-3 py-2">Active</span> :
+                        <span className="badge bg-danger px-3 py-2">Inactive</span>}
                     </td>
                     <td>{c.adduid}</td>
+                    <td>{c.customer_image ? <img src={c.customer_image} alt={c.customer_name} height="50" width="80" className="rounded border" /> : "N/A"}</td>
                     <td>
-                      {c.customer_image ? (
-                        <img
-                          src={c.customer_image}
-                          alt={c.customer_name}
-                          height="50"
-                          width="80"
-                          className="rounded border"
-                        />
-                      ) : (
-                        <span className="text-muted">N/A</span>
-                      )}
-                    </td>
-                    <td>
-                      <button
-                        className="btn btn-warning btn-sm me-2"
-                        onClick={() => handleEdit(c)}
-                      >
-                        <PencilSquare size={16} />
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(c.customer_id)}
-                      >
-                        <Trash size={16} />
-                      </button>
+                      <button className="btn btn-warning btn-sm me-2" onClick={() => handleEdit(c)}><PencilSquare size={16} /></button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c.customer_id)}><Trash size={16} /></button>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="11" className="text-center text-muted">
-                    No customers found.
-                  </td>
-                </tr>
+                <tr><td colSpan="13" className="text-center text-muted">No customer records found.</td></tr>
               )}
             </tbody>
           </table>
         )}
       </div>
 
-      {/* ✅ Pagination */}
+      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
-        totalItems={customers.length}
+        totalItems={filteredCustomers.length}
         itemsPerPage={itemsPerPage}
         onPageChange={setCurrentPage}
       />
