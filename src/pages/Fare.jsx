@@ -53,7 +53,7 @@ function Fare() {
                 },
             });
             const Fare = await res.json();
-            console.log(Fare[0]);
+            console.log(Fare);
             setData(Fare[0] || []);
             // console.log('Set Data:',setData);
         } catch (err) {

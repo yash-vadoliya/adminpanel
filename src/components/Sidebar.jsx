@@ -76,99 +76,98 @@ const Sidebar = () => {
             </span>
             {isExpanded && (
               <i
-                className={`bi ${shuttleOpen ? "bi-chevron-up" : "bi-chevron-down"
-                  }`}
+                className={`bi ${shuttleOpen ? "bi-chevron-up" : "bi-chevron-down"}`}
               ></i>
             )}
           </button>
           {shuttleOpen && isExpanded && (
             <ul className="nav flex-column ms-4 mt-2" >
-              <li>{user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/stops" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-geo-alt me-2"></i>
                   Stops
                 </a>
-              )}
+
 
               </li>
               <li>
-                {user && [SuperAdmin, Admin].includes(user.role_id) && (
-                  <a href="/routes" className="nav-link text-dark d-flex align-items-center">
-                    <i className="bi bi-signpost-2 me-2"></i>
-                    Routes
-                  </a>
-                )}
+
+                <a href="/routes" className="nav-link text-dark d-flex align-items-center">
+                  <i className="bi bi-signpost-2 me-2"></i>
+                  Routes
+                </a>
+
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/vehicles" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-truck me-2"></i>
                   Vehicles
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/fare" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-cash-stack me-2"></i>
                   Fare
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/trip" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-calendar2-week me-2"></i>
                   Trips
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/analytics" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-graph-up-arrow me-2"></i>
                   Analytics
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-x-circle me-2"></i>
                   Cancellation
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-exclamation-triangle me-2"></i>
                   Cancellation Reasons
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/promo" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-megaphone me-2"></i>
                   Promotions
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/suggestedroutes" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-compass me-2"></i>
                   Suggested Routes
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/holiday" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-calendar-event me-2"></i>
                   Holiday
                 </a>
-              )}
+
 
               </li>
             </ul>
@@ -177,12 +176,12 @@ const Sidebar = () => {
         </li>
 
         {/* Other main menu items */}
-        <li>  {user && [SuperAdmin, Admin].includes(user.role_id) && (
+        <li>
           <a href="/mapview" className="nav-link text-dark d-flex align-items-center">
             <i className="bi bi-map me-2"></i>
             {isExpanded && "Map View"}
           </a>
-        )}
+
 
         </li>
         <li>
@@ -203,48 +202,48 @@ const Sidebar = () => {
 
           {userOpen && isExpanded && (
             <ul className="nav flex-column ms-4 mt-2">
-              <li>  {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="/customer" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-person-lines-fill me-2"></i>
                   Customers
                 </a>
-              )}
+
 
               </li>
-              <li>  {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-person-badge me-2"></i>
                   Drivers
                 </a>
-              )}
+
 
               </li>
             </ul>
           )}
         </li>
 
-        <li>  {user && [SuperAdmin, Admin].includes(user.role_id) && (
+        <li>
           <a href="#" className="nav-link text-dark d-flex align-items-center">
             <i className="bi bi-person-x me-2"></i>
             {isExpanded && "Delete Account Request"}
           </a>
-        )}
+
 
         </li>
-        <li>  {user && [SuperAdmin, Admin].includes(user.role_id) && (
+        <li>
           <a href="#" className="nav-link text-dark d-flex align-items-center">
             <i className="bi bi-truck me-2"></i>
             {isExpanded && "Vehicle Type"}
           </a>
-        )}
+
 
         </li>
-        <li>  {user && [SuperAdmin, Admin].includes(user.role_id) && (
+        <li>
           <a href="/geofance" className="nav-link text-dark d-flex align-items-center">
             <i className="bi bi-geo-alt-fill me-2"></i>
             {isExpanded && "Geofence"}
           </a>
-        )}
+
 
         </li>
         <li>
@@ -265,28 +264,28 @@ const Sidebar = () => {
 
           {settingOpen && isExpanded && (
             <ul className="nav flex-column ms-4 mt-2">
-              <li>  {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-sliders me-2"></i>
                   General Setting
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-building me-2"></i>
                   City
                 </a>
-              )}
+
 
               </li>
-              <li> {user && [SuperAdmin, Admin].includes(user.role_id) && (
+              <li>
                 <a href="#" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-person-gear me-2"></i>
                   Manager Setting
                 </a>
-              )}
+
 
               </li>
             </ul>
