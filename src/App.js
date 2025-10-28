@@ -123,6 +123,7 @@ import Promotion from './pages/Promotion';
 import SuggestedRoutes from "./pages/SuggestedRoutes";
 import Holiday from "./pages/Holiday";
 import Customer from "./pages/Customer";
+import Driver from "./pages/Driver";
 
 // Layout component for pages with sidebar
 function Layout({ isSidebarExpanded, toggleSidebar }) {
@@ -183,6 +184,7 @@ function App() {
           <Route path="/suggestedroutes" element={<PrivateRoute><SuggestedRoutes /></PrivateRoute>} />
           <Route path="/holiday" element={<PrivateRoute><Holiday /></PrivateRoute>} />
           <Route path="/customer" element={<PrivateRoute><Customer /></PrivateRoute>} />
+          <Route path="/driver" element={<PrivateRoute><Driver /></PrivateRoute>} />
 
         </Route>
       </Routes>

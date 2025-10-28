@@ -211,7 +211,7 @@ const Sidebar = () => {
 
               </li>
               <li>
-                <a href="#" className="nav-link text-dark d-flex align-items-center">
+                <a href="/driver" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-person-badge me-2"></i>
                   Drivers
                 </a>
