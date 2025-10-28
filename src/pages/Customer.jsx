@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import { AuthContext } from "../AuthContext";
 import CONFIG from "../Config";
 import Pagination from "../components/Pagination";
@@ -8,11 +8,13 @@ function Customer() {
   const { token, user } = useContext(AuthContext);
 
   const [customers, setCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editId, setEditId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [imagePreview, setImagePreview] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const [formData, setFormData] = useState({
     trip_id: "",
@@ -31,12 +33,8 @@ function Customer() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Fetch all customers
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  const fetchCustomers = async () => {
+  // ✅ Fetch Customers
+  const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`${CONFIG.API_BASE_URL}/customer`, {
@@ -49,8 +47,34 @@ function Customer() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
+
+  // ✅ Filter logic
+  useEffect(() => {
+    let filtered = customers;
+
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(
+        (c) => String(c.active_status) === String(statusFilter)
+      );
+    }
+
+    if (searchQuery.trim() !== "") {
+      filtered = filtered.filter((c) =>
+        Object.values(c).some((val) =>
+          String(val).toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    }
+
+    setFilteredCustomers(filtered);
+  }, [customers, searchQuery, statusFilter]);
+
+  // ✅ Form change handler
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "customer_image" && files.length > 0) {
@@ -61,6 +85,7 @@ function Customer() {
     }
   };
 
+  // ✅ Add / Update Customer
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -83,10 +108,8 @@ function Customer() {
       if (res.ok) {
         alert(editId ? "Customer updated successfully!" : "Customer added successfully!");
         fetchCustomers();
-        // resetForm();
-        // setEditId(null);
         setShowForm(false);
-        // window.re
+        setEditId(null);
       } else {
         const err = await res.json();
         alert("Error: " + (err.message || "Unknown error"));
@@ -96,23 +119,7 @@ function Customer() {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      trip_id: "",
-      customer_name: "",
-      email: "",
-      customer_phone_number: "",
-      gender: "",
-      date_of_birth: "",
-      city_id: "",
-      total_trips: 0,
-      active_status: "1",
-      customer_image: null,
-      adduid: user?.user_id || "",
-    });
-    setImagePreview("");
-  };
-
+  // ✅ Edit Customer
   const handleEdit = (cust) => {
     setEditId(cust.customer_id);
     setFormData({
@@ -121,7 +128,9 @@ function Customer() {
       email: cust.email || "",
       customer_phone_number: cust.customer_phone_number || "",
       gender: cust.gender || "",
-      date_of_birth: cust.date_of_birth ? new Date(cust.date_of_birth).toISOString().split("T")[0] : "",
+      date_of_birth: cust.date_of_birth
+        ? new Date(cust.date_of_birth).toISOString().split("T")[0]
+        : "",
       city_id: cust.city_id || "",
       total_trips: cust.total_trips || 0,
       active_status: cust.active_status?.toString() || "1",
@@ -133,6 +142,7 @@ function Customer() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // ✅ Delete Customer
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
     try {
@@ -146,8 +156,12 @@ function Customer() {
     }
   };
 
+  // ✅ CSV Export
   const exportCSV = () => {
-    if (!customers.length) return alert("No records available to export!");
+    const dataToExport = filteredCustomers.length ? filteredCustomers : customers;
+
+    if (!dataToExport.length) return alert("No records available to export!");
+
     const header = [
       "customer_id",
       "trip_id",
@@ -162,7 +176,8 @@ function Customer() {
       "customer_image",
       "adduid",
     ];
-    const rows = customers.map((c) => [
+
+    const rows = dataToExport.map((c) => [
       c.customer_id,
       c.trip_id,
       c.customer_name,
@@ -176,22 +191,22 @@ function Customer() {
       c.customer_image,
       c.adduid,
     ]);
-    const csvContent = [header, ...rows].map((r) => r.map((v) => `"${v ?? "-"}"`).join(",")).join("\n");
+
+    const csvContent = [header, ...rows]
+      .map((r) => r.map((v) => `"${v ?? "-"}"`).join(","))
+      .join("\n");
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `Customer_${new Date().toISOString().slice(0, 10)}.csv`;
+    const fileName = filteredCustomers.length
+      ? `Customer_Filtered_${new Date().toISOString().slice(0, 10)}.csv`
+      : `Customer_All_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = fileName;
     link.click();
   };
 
-  const filteredCustomers = customers.filter(
-    (c) =>
-      c.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.customer_phone_number?.includes(searchQuery)
-  );
-
-  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+  // ✅ Pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filteredCustomers.slice(startIndex, startIndex + itemsPerPage);
 
@@ -205,11 +220,13 @@ function Customer() {
           <button className="btn btn-success me-2" onClick={() => setShowForm(!showForm)}>
             {showForm ? "Hide Form" : editId ? "Update Customer" : "Add Customer"}
           </button>
-          <button className="btn btn-secondary" onClick={exportCSV}>Export CSV</button>
+          <button className="btn btn-secondary" onClick={exportCSV}>
+            Export CSV
+          </button>
         </div>
       </div>
 
-      {/* Search Box */}
+      {/* 🔍 Search & Filter */}
       <div className="mb-3 d-flex align-items-center">
         <input
           type="text"
@@ -219,28 +236,75 @@ function Customer() {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         {searchQuery && (
-          <button className="btn btn-outline-secondary" onClick={clearSearch}><X /></button>
+          <button className="btn btn-outline-secondary" onClick={clearSearch}>
+            <X />
+          </button>
         )}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="ms-2 form-select"
+          style={{ width: "180px" }}
+        >
+          <option value="all">All</option>
+          <option value="1">Active</option>
+          <option value="0">Inactive</option>
+        </select>
       </div>
 
-      {/* Form Section */}
+      {/* ✅ Form Section */}
       {showForm && (
         <form onSubmit={handleSubmit} className="row g-3 bg-light p-3 rounded shadow-sm mb-4">
           <div className="col-md-3">
-            <input type="number" name="trip_id" className="form-control" placeholder="Trip ID" value={formData.trip_id} onChange={handleChange} required />
+            <input
+              type="number"
+              name="trip_id"
+              className="form-control"
+              placeholder="Trip ID"
+              value={formData.trip_id}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="col-md-3">
-            <input type="text" name="customer_name" className="form-control" placeholder="Customer Name" value={formData.customer_name} onChange={handleChange} required />
+            <input
+              type="text"
+              name="customer_name"
+              className="form-control"
+              placeholder="Customer Name"
+              value={formData.customer_name}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="col-md-3">
-            <input type="email" name="email" className="form-control" placeholder="Email" value={formData.email} onChange={handleChange} />
+            <input
+              type="email"
+              name="email"
+              className="form-control"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+            />
           </div>
           <div className="col-md-3">
-            <input type="text" name="customer_phone_number" className="form-control" placeholder="Phone Number" value={formData.customer_phone_number} onChange={handleChange} />
+            <input
+              type="text"
+              name="customer_phone_number"
+              className="form-control"
+              placeholder="Phone Number"
+              value={formData.customer_phone_number}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="col-md-2">
-            <select name="gender" className="form-select" value={formData.gender} onChange={handleChange}>
+            <select
+              name="gender"
+              className="form-select"
+              value={formData.gender}
+              onChange={handleChange}
+            >
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
@@ -248,32 +312,74 @@ function Customer() {
             </select>
           </div>
           <div className="col-md-2">
-            <input type="date" name="date_of_birth" className="form-control" value={formData.date_of_birth} onChange={handleChange} />
+            <input
+              type="date"
+              name="date_of_birth"
+              className="form-control"
+              value={formData.date_of_birth}
+              onChange={handleChange}
+            />
           </div>
           <div className="col-md-2">
-            <input type="number" name="city_id" className="form-control" placeholder="City ID" value={formData.city_id} onChange={handleChange} />
+            <input
+              type="number"
+              name="city_id"
+              className="form-control"
+              placeholder="City ID"
+              value={formData.city_id}
+              onChange={handleChange}
+            />
           </div>
           <div className="col-md-2">
-            <input type="number" name="total_trips" className="form-control" placeholder="Total Trips" value={formData.total_trips} onChange={handleChange} />
+            <input
+              type="number"
+              name="total_trips"
+              className="form-control"
+              placeholder="Total Trips"
+              value={formData.total_trips}
+              onChange={handleChange}
+            />
           </div>
           <div className="col-md-2">
-            <select name="active_status" className="form-select" value={formData.active_status} onChange={handleChange}>
+            <select
+              name="active_status"
+              className="form-select"
+              value={formData.active_status}
+              onChange={handleChange}
+            >
               <option value="1">Active</option>
               <option value="0">Inactive</option>
             </select>
           </div>
           <div className="col-md-4">
-            <input type="file" name="customer_image" className="form-control" onChange={handleChange} />
-            {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 rounded border" height={50} width={80} />}
+            <input
+              type="file"
+              name="customer_image"
+              className="form-control"
+              onChange={handleChange}
+            />
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="mt-2 rounded border"
+                height={50}
+                width={80}
+              />
+            )}
           </div>
           <div className="col-12 d-flex gap-2">
-            <button className="btn btn-primary" type="submit">{editId ? "Update Customer" : "Add Customer"}</button>
-            <button className="btn btn-secondary" type="button" onClick={() => setShowForm(false)}>Cancel</button>
+            <button className="btn btn-primary" type="submit">
+              {editId ? "Update Customer" : "Add Customer"}
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={() => setShowForm(false)}>
+              Cancel
+            </button>
           </div>
         </form>
       )}
 
-      {/* Table */}
+      {/* ✅ Table */}
       <div className="table-responsive">
         {loading ? (
           <p className="text-center fs-5">Loading customers...</p>
@@ -298,8 +404,8 @@ function Customer() {
             </thead>
             <tbody>
               {currentData.length ? (
-                currentData.map((c, i) => (
-                  <tr key={i}>
+                currentData.map((c) => (
+                  <tr key={c.customer_id}>
                     <td>{c.customer_id}</td>
                     <td>{c.trip_id}</td>
                     <td>{c.customer_name}</td>
@@ -310,26 +416,55 @@ function Customer() {
                     <td>{c.city_id}</td>
                     <td>{c.total_trips}</td>
                     <td>
-                      {c.active_status === 1 ? <span className="badge bg-success px-3 py-2">Active</span> :
-                        <span className="badge bg-danger px-3 py-2">Inactive</span>}
+                      {c.active_status === 1 ? (
+                        <span className="badge bg-success px-3 py-2">Active</span>
+                      ) : (
+                        <span className="badge bg-danger px-3 py-2">Inactive</span>
+                      )}
                     </td>
                     <td>{c.adduid}</td>
-                    <td>{c.customer_image ? <img src={c.customer_image} alt={c.customer_name} height="50" width="80" className="rounded border" /> : "N/A"}</td>
                     <td>
-                      <button className="btn btn-warning btn-sm me-2" onClick={() => handleEdit(c)}><PencilSquare size={16} /></button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c.customer_id)}><Trash size={16} /></button>
+                      {c.customer_image ? (
+                        <img
+                          src={c.customer_image}
+                          alt={c.customer_name}
+                          height="50"
+                          width="80"
+                          className="rounded border"
+                        />
+                      ) : (
+                        "N/A"
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={() => handleEdit(c)}
+                      >
+                        <PencilSquare size={16} />
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleDelete(c.customer_id)}
+                      >
+                        <Trash size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="13" className="text-center text-muted">No customer records found.</td></tr>
+                <tr>
+                  <td colSpan="13" className="text-center text-muted">
+                    No customer records found.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         )}
       </div>
 
-      {/* Pagination */}
+      {/* ✅ Pagination */}
       <Pagination
         currentPage={currentPage}
         totalItems={filteredCustomers.length}
