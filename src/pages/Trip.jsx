@@ -5,6 +5,7 @@ import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
 import Select from "react-select"; // ✅ import react-select
 import "../App.css";
 import Pagination from "../components/Pagination";
+import ROLES from "../Role";
 
 function TripForm() {
     const { token, user } = useContext(AuthContext);
@@ -33,11 +34,16 @@ function TripForm() {
         adduid: user?.user_id || "",
     });
 
+
     const [routes, setRoutes] = useState([]);
     const [drivers, setDrivers] = useState([]);
     const [vehicles, setVehicles] = useState([]);
     const [policies, setPolicies] = useState([]);
     const [promotions, setPromotions] = useState([]);
+
+    // Role Base
+    const isAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(user?.role_id);
+
 
     useEffect(() => {
         fetchDropdownData();
@@ -528,24 +534,28 @@ function TripForm() {
                                 <td>{t.trip_day}</td>
                                 <td>₹{t.trip_fare}</td>
                                 <td>
-                                    <button
+                                     <button
                                         className="btn btn-info btn-sm me-2"
                                         onClick={() => setSelectedTrip(t)}
                                     >
                                         <Eye /> View
                                     </button>
-                                    <button
-                                        className="btn btn-warning btn-sm me-2"
-                                        onClick={() => handleEdit(t)}
-                                    >
-                                        <PencilSquare />
-                                    </button>
-                                    <button
-                                        className="btn btn-danger btn-sm"
-                                        onClick={() => handleDelete(t.trip_id)}
-                                    >
-                                        <Trash />
-                                    </button>
+                                    {isAdmin && (<>
+                                        <button
+                                            className="btn btn-warning btn-sm me-2"
+                                            onClick={() => handleEdit(t)}
+                                        >
+                                            <PencilSquare />
+                                        </button>
+                                        <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => handleDelete(t.trip_id)}
+                                        >
+                                            <Trash />
+                                        </button>
+                                    </>)}
+                                   
+
                                 </td>
                             </tr>
                         ))}
@@ -563,7 +573,7 @@ function TripForm() {
                     <div className={`details-panel show`}>
                         <div className="card shadow-lg">
                             {/* Header */}
-                            <div className="card-header  d-flex justify-content-between align-items-center">
+                            <div className="card-header d-flex justify-content-between align-items-center">
                                 <h5 className="mb-0 text-center flex-grow-1 fs-3">
                                     Trip Details
                                 </h5>

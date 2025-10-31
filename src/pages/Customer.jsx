@@ -3,6 +3,7 @@ import { AuthContext } from "../AuthContext";
 import CONFIG from "../Config";
 import Pagination from "../components/Pagination";
 import { PencilSquare, Trash, X } from "react-bootstrap-icons";
+import ROLES from "../Role";
 
 function Customer() {
   const { token, user } = useContext(AuthContext);
@@ -32,6 +33,9 @@ function Customer() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+   // Role Base
+    const isAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(user?.role_id);
 
   // ✅ Fetch Customers
   const fetchCustomers = useCallback(async () => {
@@ -200,7 +204,7 @@ function Customer() {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     const fileName = filteredCustomers.length
-      ? `Customer_Filtered_${new Date().toISOString().slice(0, 10)}.csv`
+      ? `Customer_${dataToExport[0].customer_name || "Filtered"}_${new Date().toISOString().slice(0, 10)}.csv`
       : `Customer_All_${new Date().toISOString().slice(0, 10)}.csv`;
     link.download = fileName;
     link.click();
@@ -399,7 +403,7 @@ function Customer() {
                 <th>Status</th>
                 <th>Added By</th>
                 <th>Image</th>
-                <th>Actions</th>
+                {isAdmin && (<><th>Actions</th></>)}
               </tr>
             </thead>
             <tbody>
@@ -436,7 +440,8 @@ function Customer() {
                         "N/A"
                       )}
                     </td>
-                    <td>
+                    {isAdmin && (<>
+                      <td>
                       <button
                         className="btn btn-warning btn-sm me-2"
                         onClick={() => handleEdit(c)}
@@ -450,6 +455,8 @@ function Customer() {
                         <Trash size={16} />
                       </button>
                     </td>
+                    </>)}
+                    
                   </tr>
                 ))
               ) : (

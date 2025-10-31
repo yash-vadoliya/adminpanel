@@ -3,6 +3,7 @@ import { AuthContext } from '../AuthContext';
 import CONFIG from '../Config';
 import { PencilSquare, Trash } from 'react-bootstrap-icons';
 import Pagination from '../components/Pagination';
+import ROLES from '../Role';
 
 function Fare() {
     const { token, user } = useContext(AuthContext);
@@ -25,6 +26,9 @@ function Fare() {
         fare_type: "",
         status: ""
     });
+
+    // Role Base
+    const isAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(user?.role_id);
 
     useEffect(() => {
         fetchFare();
@@ -254,61 +258,66 @@ function Fare() {
                 )}
 
                 {/* Table */}
-                <div style={{ maxHeight: '80vh', overflowX: 'auto',}}>
+                <div style={{ maxHeight: '80vh', overflowX: 'auto', }}>
                     <div className="table-responsive">
-                    <table className="table table-bordered align-middle text-center shadow-sm rounded-3" style={{ borderRadius: "12px", overflow: "hidden" }}>
-                        <thead className="table-dark" style={{ borderRadius: "12px 12px 0 0 " }}>
-                            <tr>
-                                <th>ID</th>
-                                <th>FARE TYPE</th>
-                                <th>FARE PER STOP</th>
-                                <th>BASE FARE</th>
-                                <th>FARE PER KM</th>
-                                <th>STATUS</th>
-                                <th>ADDUID</th>
-                                <th>ACTION</th>
-                            </tr>
-                        </thead>
-                        <tbody style={{ backgroundColor: "#fff", marginTop: "10px", display: "table-row-group"}}>
-                            {loading ? (
+                        <table className="table table-bordered align-middle text-center shadow-sm rounded-3" style={{ borderRadius: "12px", overflow: "hidden" }}>
+                            <thead className="table-dark" style={{ borderRadius: "12px 12px 0 0 " }}>
                                 <tr>
-                                    <td colSpan="16" className='text-center'>Loading..</td>
+                                    <th>ID</th>
+                                    <th>FARE TYPE</th>
+                                    <th>FARE PER STOP</th>
+                                    <th>BASE FARE</th>
+                                    <th>FARE PER KM</th>
+                                    <th>STATUS</th>
+                                    <th>ADDUID</th>
+                                    {isAdmin && (<><th>ACTION</th></>)}
+                                    
                                 </tr>
-                            ) : currentData.length === 0 ? (
-                                <tr>
-                                    <td colSpan="16" className='text-center'> No Fare Found</td>
-                                </tr>
-                            ) : currentData.map((fare, index) => (
-                                <tr key={fare.fare_id || index}>
-                                    <td>{fare.fare_id}</td>
-                                    <td>{fare.fare_type}</td>
-                                    <td>{fare.fare_per_stop}</td>
-                                    <td>{fare.base_fare}</td>
-                                    <td>{fare.fare_per_KM}</td>
-                                    <td>{fare.status === 'Active' ? (
-                                        <span className="badge bg-success px-3 py-2 fs-6">Active</span>
-                                    ) : (
-                                        <span className="badge bg-danger px-3 py-2 fs-6">Stopped</span>
-                                    )}</td>
-                                    <td>{fare.adduid}</td>
-                                    <td>
-                                        <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(fare)}><PencilSquare /></button>
-                                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(fare.fare_id)}><Trash /></button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody style={{ backgroundColor: "#fff", marginTop: "10px", display: "table-row-group" }}>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="16" className='text-center'>Loading..</td>
+                                    </tr>
+                                ) : currentData.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="16" className='text-center'> No Fare Found</td>
+                                    </tr>
+                                ) : currentData.map((fare, index) => (
+                                    <tr key={fare.fare_id || index}>
+                                        <td>{fare.fare_id}</td>
+                                        <td>{fare.fare_type}</td>
+                                        <td>{fare.fare_per_stop}</td>
+                                        <td>{fare.base_fare}</td>
+                                        <td>{fare.fare_per_KM}</td>
+                                        <td>{fare.status === 'Active' ? (
+                                            <span className="badge bg-success px-3 py-2 fs-6">Active</span>
+                                        ) : (
+                                            <span className="badge bg-danger px-3 py-2 fs-6">Stopped</span>
+                                        )}</td>
+                                        <td>{fare.adduid}</td>
+                                        {isAdmin && (<>
+                                        <td>
+                                            
+                                            <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(fare)}><PencilSquare /></button>
+                                            <button className="btn btn-sm btn-danger" onClick={() => handleDelete(fare.fare_id)}><Trash /></button>
+                                           
+                                        </td>
+                                         </>)}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 {/* Pagination */}
-               <Pagination
-                             currentPage={currentPage}
-                             totalItems={totalPages.length}
-                             itemsPerPage={itemsPerPage}
-                             onPageChange={setCurrentPage}
-                           />
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalPages.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </>
     )

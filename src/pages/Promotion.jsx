@@ -4,7 +4,7 @@ import CONFIG from "../Config";
 import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
 import "../App.css";
 import Pagination from "../components/Pagination";
-
+import ROLES from "../Role";
 
 function Promotion() {
   const { token, user } = useContext(AuthContext);
@@ -29,6 +29,9 @@ function Promotion() {
     promo_code: "",
     adduid: user?.user_id || "",
   });
+
+  // Role Base
+  const isAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(user?.role_id);
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -267,18 +270,21 @@ function Promotion() {
                       >
                         <Eye /> View
                       </button>
-                      <button
-                        className="btn btn-warning btn-sm me-2"
-                        onClick={() => handleEdit(p)}
-                      >
-                        <PencilSquare />
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(p.promotion_id)}
-                      >
-                        <Trash />
-                      </button>
+                      {isAdmin && (<>
+                        <button
+                          className="btn btn-warning btn-sm me-2"
+                          onClick={() => handleEdit(p)}
+                        >
+                          <PencilSquare />
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleDelete(p.promotion_id)}
+                        >
+                          <Trash />
+                        </button>
+                      </>)}
+
                     </td>
                   </tr>
                 ))
@@ -380,11 +386,11 @@ function Promotion() {
 
         {/* Pagination */}
         <Pagination
-  currentPage={currentPage}
-  totalItems={totalPages.length}
-  itemsPerPage={itemsPerPage}
-  onPageChange={setCurrentPage}
-/>
+          currentPage={currentPage}
+          totalItems={totalPages.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
 
       </div>
     </div>

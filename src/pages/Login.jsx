@@ -25,8 +25,8 @@ function Login() {
 
       if (data.token) {
         localStorage.setItem("token", data.token); // save token
+        localStorage.setItem("user", JSON.stringify(data.user)); //save user
         alert(data.message || "Login successful!"); // default alert
-        // setToken(data.token); // optional, if you want to store in context
         navigate("/dashboard"); // go to dashboard
       } else {
         alert(data.error || "Login failed"); // default alert

@@ -4,6 +4,7 @@ import CONFIG from "../Config";
 import Pagination from "../components/Pagination";
 import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
 import "../App.css";
+import MapPicker from '../components/MapPicker';
 
 function Driver() {
   const { token, user } = useContext(AuthContext);
@@ -121,12 +122,24 @@ function Driver() {
     }
   };
 
-  const handleEdit = (driver) => {
-    const { adduid, adddate, deleteuid, deletedate, record_status, created_at, updated_at, ...rest } = driver;
-    setFormData({ ...rest, adduid: user?.user_id || "" });
-    setEditID(driver.driver_id);
-    setShowForm(true);
-  };
+const handleEdit = (driver) => {
+  // Remove unwanted keys before editing
+  const { adduid, adddate, deleteuid, deletedate, record_status, created_at, updated_at, ...rest } = driver;
+
+  // Ensure string or default values to prevent uncontrolled input warnings
+  const cleanData = Object.fromEntries(
+    Object.entries(rest).map(([key, val]) => [key, val ?? ""])
+  );
+
+  setFormData({
+    ...cleanData,
+    adduid: user?.user_id || "",
+  });
+
+  setEditID(driver.driver_id);
+  setShowForm(true);
+};
+
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
@@ -154,75 +167,96 @@ function Driver() {
         </button>
       </div>
 
-      {showForm && (
-        <div className="card p-3 shadow">
-          <h5>{editID ? "Update Driver" : "Add Driver"}</h5>
-          <form onSubmit={handleSubmit}>
-            <div className="row">
-              {[
-                ["vehicle_id", "Vehicle ID", "text"],
-                ["driver_name", "Driver Name", "text"],
-                ["driver_vehicle_number", "Vehicle Number", "text"],
-                ["driver_licence_number", "Licence Number", "text"],
-                ["email", "Email", "email"],
-                ["driver_phone_number", "Phone Number", "text"],
-                ["gender", "Gender", "text"],
-                ["date_of_birth", "Date of Birth", "date"],
-                ["city_id", "City ID", "text"],
-                ["current_latitude", "Latitude", "text"],
-                ["current_longitude", "Longitude", "text"],
-                ["total_trips", "Total Trips", "text"],
-                ["wallet_balance", "Wallet Balance", "text"],
-                ["active_status", "Status", "text"],
-              ].map(([name, label, type]) => (
-                <div className="col-md-4 mb-2" key={name}>
-                  <label className="form-label">{label}</label>
-                  <input
-                    type={type}
-                    name={name}
-                    className="form-control"
-                    value={formData[name]}
-                    onChange={handleChange}
-                  />
-                </div>
-              ))}
+     {showForm && (
+  <div className="card p-3 shadow">
+    <h5>{editID ? "Update Driver" : "Add Driver"}</h5>
+    <form onSubmit={handleSubmit}>
+      <div className="row">
+        {[
+          ["vehicle_id", "Vehicle ID", "text"],
+          ["driver_name", "Driver Name", "text"],
+          ["driver_vehicle_number", "Vehicle Number", "text"],
+          ["driver_licence_number", "Licence Number", "text"],
+          ["email", "Email", "email"],
+          ["driver_phone_number", "Phone Number", "text"],
+          ["gender", "Gender", "text"],
+          ["date_of_birth", "Date of Birth", "date"],
+          ["city_id", "City ID", "text"],
+          ["total_trips", "Total Trips", "text"],
+          ["wallet_balance", "Wallet Balance", "text"],
+          ["active_status", "Status", "text"],
+        ].map(([name, label, type]) => (
+          <div className="col-md-4 mb-2" key={name}>
+            <label className="form-label">{label}</label>
+            <input
+              type={type}
+              name={name}
+              className="form-control"
+              value={formData[name]}
+              onChange={handleChange}
+            />
+          </div>
+        ))}
 
-              <div className="col-md-4 mb-2">
-                <label className="form-label">Licence Image</label>
-                <input type="file" name="image_of_licence" className="form-control" onChange={handleChange} />
-                {formData.image_of_licence && typeof formData.image_of_licence === "object" && (
-                  <img
-                    src={URL.createObjectURL(formData.image_of_licence)}
-                    alt="Licence Preview"
-                    className="img-thumbnail mt-2"
-                    style={{ maxHeight: "150px" }}
-                  />
-                )}
-              </div>
-
-              <div className="col-md-4 mb-2">
-                <label className="form-label">Driver Image</label>
-                <input type="file" name="driver_image" className="form-control" onChange={handleChange} />
-                {formData.driver_image && typeof formData.driver_image === "object" && (
-                  <img
-                    src={URL.createObjectURL(formData.driver_image)}
-                    alt="Driver Preview"
-                    className="img-thumbnail mt-2"
-                    style={{ maxHeight: "150px" }}
-                  />
-                )}
-              </div>
-            </div>
-
-            <button type="submit" className="btn btn-primary me-2">
-              {editID ? "Update" : "Add"}
-            </button>
-            <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
-              Cancel
-            </button>
-          </form>
+        {/* Licence Image Upload */}
+        <div className="col-md-4 mb-2">
+          <label className="form-label">Licence Image</label>
+          <input type="file" name="image_of_licence" className="form-control" onChange={handleChange} />
+          {formData.image_of_licence && typeof formData.image_of_licence === "object" && (
+            <img
+              src={URL.createObjectURL(formData.image_of_licence)}
+              alt="Licence Preview"
+              className="img-thumbnail mt-2"
+              style={{ maxHeight: "150px" }}
+            />
+          )}
         </div>
-      )}
+
+        {/* Driver Image Upload */}
+        <div className="col-md-4 mb-2">
+          <label className="form-label">Driver Image</label>
+          <input type="file" name="driver_image" className="form-control" onChange={handleChange} />
+          {formData.driver_image && typeof formData.driver_image === "object" && (
+            <img
+              src={URL.createObjectURL(formData.driver_image)}
+              alt="Driver Preview"
+              className="img-thumbnail mt-2"
+              style={{ maxHeight: "150px" }}
+            />
+          )}
+        </div>
+
+        {/* 🌍 Google Map Location Picker */}
+        <div className="col-md-12 mt-3">
+          <label className="form-label">Select Driver Location</label>
+          <MapPicker
+            latitude={formData.current_latitude}
+            longitude={formData.current_longitude}
+            onLocationChange={(lat, lng) =>
+              setFormData({
+                ...formData, 
+                current_latitude: lat,
+                current_longitude: lng,
+              })
+            }
+          />   
+          <div className="mt-2">
+            <strong>Latitude:</strong> {formData.current_latitude} <br />
+            <strong>Longitude:</strong> {formData.current_longitude}
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" className="btn btn-primary me-2">
+        {editID ? "Update" : "Add"}
+      </button>
+      <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
+        Cancel
+      </button>
+    </form>
+  </div>
+)}
+
 
       <div className="table-responsive">
         {loading ? (
@@ -242,7 +276,9 @@ function Driver() {
             </thead>
             <tbody>
               {currentData.length > 0 ? (
-                currentData.map((d) => (
+                currentData
+                .filter((d) => d.record_status === 1)
+                .map((d) => (
                   <tr key={d.driver_id}>
                     <td>{d.driver_id}</td>
                     <td>{d.vehicle_id}</td>
@@ -295,13 +331,13 @@ function Driver() {
               <div className="card-body fs-6">
                 <div className="row g-3 mb-3">
                   <div className="col-md-6"><strong>Driver ID:</strong> {selectDriver.driver_id}</div>
-                  <div className="col-md-6"><strong>Vehicle ID:</strong> {selectDriver.vehicle_id}</div>
+                  <div className="col-md-6"><strong>Vehicle ID:</strong> {selectDriver.vehicle_id}</div><hr />
                   <div className="col-md-6"><strong>Driver Vehicle Number:</strong> {selectDriver.driver_vehicle_number}</div>
                   <div className="col-md-6"><strong>Licence Number:</strong> {selectDriver.driver_licence_number}</div>
                   <div className="col-md-6"><strong>Email:</strong> {selectDriver.email}</div>
                   <div className="col-md-6"><strong>Phone:</strong> {selectDriver.driver_phone_number}</div>
                   <div className="col-md-6"><strong>Gender:</strong> {selectDriver.gender}</div>
-                  <div className="col-md-6"><strong>DOB:</strong> {selectDriver.date_of_birth}</div>
+                  <div className="col-md-6"><strong>DOB:</strong> {selectDriver.date_of_birth}</div><hr />
                   <div className="col-md-6"><strong>City ID:</strong> {selectDriver.city_id}</div>
                   <div className="col-md-6"><strong>Latitude:</strong> {selectDriver.current_latitude}</div>
                   <div className="col-md-6"><strong>Longitude:</strong> {selectDriver.current_longitude}</div>
@@ -314,7 +350,7 @@ function Driver() {
                       <span className="badge bg-danger px-3 py-2">Inactive</span>
                     )}
                   </div>
-                </div>
+                </div><hr />
 
                 <div className="row">
                   <div className="col-md-6 text-center">

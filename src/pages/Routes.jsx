@@ -3,6 +3,7 @@ import CONFIG from '../Config';
 import WorldMap from '../components/WorldMap';
 import { AuthContext } from '../AuthContext';
 import { PencilSquare, Trash } from 'react-bootstrap-icons';
+import ROLES from '../Role';
 
 function Routes() {
   const { token, user } = useContext(AuthContext);
@@ -30,6 +31,10 @@ function Routes() {
     is_active: 1,
     adduid: '',
   });
+
+  // Role Base
+  const isAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(user?.role_id);
+
 
   // Fetch all routes
   const fetchRoutes = async () => {
@@ -376,18 +381,20 @@ function Routes() {
 
                         {/* Action Buttons */}
                         <div className="mt-3 d-flex flex-wrap gap-2">
-                          <button
-                            className="btn btn-sm btn-warning"
-                            onClick={() => handleEdit(route)}
-                          >
-                            <PencilSquare />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() => handleDelete(route.route_id)}
-                          >
-                            <Trash />
-                          </button>
+                          {isAdmin && (<>
+                            <button
+                              className="btn btn-sm btn-warning"
+                              onClick={() => handleEdit(route)}
+                            >
+                              <PencilSquare />
+                            </button>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleDelete(route.route_id)}
+                            >
+                              <Trash />
+                            </button>
+                          </>)}
                           <button
                             className="btn btn-sm btn-info text-white"
                             onClick={() => handleshowRecord(route.route_id)}
