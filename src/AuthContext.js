@@ -4,14 +4,18 @@ import { jwtDecode } from "jwt-decode";  // ✅ named import
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState();
   const [token, setToken] = useState(localStorage.getItem("token") || null);
 
   useEffect(() => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser({ ...decoded, token }); // decoded payload must include user_id
+        setUser({
+          user_id: decoded.user_id || null,
+          role_id: decoded.role_id || null,
+          token
+        }); // decoded payload must include user_id
       } catch (err) {
         console.error("Invalid token:", err);
         setUser(null);
@@ -19,12 +23,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const login = (newToken) => {
+  const login = (newToken, userData) => {
     localStorage.setItem("token", newToken);
+    localStorage.setItem("user", JSON.stringify(userData));
     setToken(newToken);
+    setUser(userData);
     try {
       const decoded = jwtDecode(newToken);
-      setUser({ ...decoded, token: newToken });
+      setUser({
+        user_id: decoded.user_id || null,
+        role_id: decoded.role_id || null,
+        token: newToken
+      });
     } catch (err) {
       console.error("Invalid token:", err);
       setUser(null);
@@ -38,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, setToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

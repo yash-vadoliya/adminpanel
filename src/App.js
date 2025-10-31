@@ -163,7 +163,7 @@ function App() {
 
         {/* Protected routes with sidebar+header */}
         <Route
-          element={
+          element={     
             <>
               <Header />
               <Layout isSidebarExpanded={isSidebarExpanded} toggleSidebar={toggleSidebar}/>
