@@ -1,0 +1,442 @@
+/* Layout & Hero */
+.hero-section {
+  background: linear-gradient(135deg, #2b32b2, #1488cc);
+  padding: 80px 0;
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
+}
+
+.hero-img {
+  max-height: 250px;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3));
+}
+
+.search-container {
+  margin-top: -50px;
+}
+
+.search-card {
+  border-radius: 20px;
+}
+
+/* Bus Layout UI */
+.bus-container {
+  background: #f1f3f5;
+  padding: 30px;
+  border-radius: 20px;
+  border: 2px solid #dee2e6;
+  max-width: 400px;
+  margin: auto;
+}
+
+.driver-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.seats-grid {
+  display: flex;
+  gap: 15px;
+}
+
+.seat-column,
+.seat-column-triple {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.seat-column-triple {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.aisle-gap {
+  width: 30px;
+}
+
+.seat {
+  width: 45px;
+  height: 45px;
+  background: white;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.seat:hover {
+  background: #e9ecef;
+  transform: scale(1.05);
+}
+
+.seat.selected {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+/* Seat Selection Panel Overlay */
+.seat-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.seat-panel {
+  background: white;
+  width: 90%;
+  max-width: 1000px;
+  height: 95vh;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.vehicle-info-card {
+  background: #fff;
+  position: sticky;
+  top: 0;
+}
+
+/* Right panel scroll */
+.scrollable-vehicle {
+  height: 80vh;
+  /* fixed height */
+  overflow-y: auto;
+  /* scroll */
+  overflow-x: hidden;
+}
+
+/* Smooth scrollbar */
+.scrollable-vehicle::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-vehicle::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+/* Route list scroll inside */
+.route-scroll-card {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+
+.route-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 15px;
+  color: #333;
+}
+
+.route-stop {
+  white-space: nowrap;
+}
+
+.route-arrow {
+  margin: 0 6px;
+  color: #999;
+  font-weight: bold;
+}
+
+/* Pikup and Drop Point */
+.pickup-drop-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 22px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: #dcdcdc;
+}
+
+.timeline-row {
+  position: relative;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.dot {
+  position: absolute;
+  left: -15px;
+  width: 10px;
+  height: 10px;
+  background: #000;
+  border-radius: 50%;
+}
+
+.text {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+
+
+/* ================= MOBILE RESPONSIVE FIX ================= */
+
+@media (max-width: 768px) {
+
+  /* Overlay panel full screen */
+  .seat-overlay {
+    align-items: center;
+  }
+
+  .seat-panel {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  /* Stack columns */
+  .seat-panel .row {
+    flex-direction: column !important;
+  }
+
+  .seat-panel .col-lg-6,
+  .seat-panel .col-md-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Remove sticky behavior on mobile */
+  .vehicle-info-card {
+    position: relative !important;
+    top: auto !important;
+  }
+
+  /* Remove fixed scroll heights */
+  .scrollable-vehicle {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .route-scroll-card {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Seat grid smaller */
+  .bus-container {
+    max-width: 100%;
+    padding: 15px;
+  }
+
+  .seat {
+    width: 38px;
+    height: 38px;
+    font-size: 12px;
+  }
+
+  .aisle-gap {
+    width: 15px;
+  }
+
+  /* Timeline spacing */
+  .timeline {
+    padding-left: 18px;
+  }
+
+  .dot {
+    left: -12px;
+  }
+
+  .text {
+    font-size: 14px;
+  }
+
+  /* Route line wrap nicely */
+  .route-line {
+    font-size: 14px;
+    gap: 4px;
+  }
+
+  /* Headings smaller */
+  .card-title {
+    font-size: 18px;
+  }
+
+  .section-title {
+    font-size: 15px;
+  }
+
+  /* Button spacing */
+  .btn.w-100 {
+    font-size: 16px;
+    padding: 10px;
+  }
+}
+
+/* ========================== */
+
+/* Card nav  */
+.tabs-wrapper {
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  background: #fff;
+  overflow: hidden;
+}
+
+.tabs-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-item {
+  flex: 0 0 auto;
+  padding: 14px 22px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  position: relative;
+  color: #333;
+}
+
+/* ACTIVE RED UNDERLINE */
+.tab-item.active {
+  color: #e53935;
+}
+
+.tab-item.active::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 0;
+  height: 3px;
+  background: #e53935;
+  border-radius: 10px;
+}
+
+
+/* =====================Demo=============== */
+
+div.scrollmenu {
+  background-color: #fff;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+div.scrollmenu a {
+  display: inline-block;
+  color: #000;
+  text-align: center;
+  padding: 14px;
+  text-decoration: none;
+}
+
+div.scrollmenu a:hover {
+  background-color: #f1eeee;
+}
+
+/* Amenities */
+.amenity-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f8f9fa;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.amenity-box i {
+  font-size: 20px;
+}
+
+.amenity-box:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+}
+
+/* Promo */
+.promo-card {
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  padding: 15px;
+  background: #fff;
+}
+
+.discount-badge {
+  background: #e53935;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+
+/* amenities css */
+.amenity-box {
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8f9fa;
+  font-weight: 500;
+}
+
+.amenity-box i {
+  font-size: 20px;
+  color: #0d6efd;
+}

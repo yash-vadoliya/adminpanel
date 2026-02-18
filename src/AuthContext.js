@@ -1,55 +1,52 @@
-import React, { createContext, useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";  // ✅ named import
+import { createContext, useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState();
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // 🔥 runs once and when token changes
   useEffect(() => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser({
+
+        const userData = {
           user_id: decoded.user_id || null,
           role_id: decoded.role_id || null,
-          token
-        }); // decoded payload must include user_id
+        };
+
+        setUser(userData);
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(userData));
       } catch (err) {
-        console.error("Invalid token:", err);
-        setUser(null);
+        console.error("Invalid token", err);
+        logout();
       }
+    } else {
+      setUser(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
+
+    setLoading(false);
   }, [token]);
 
-  const login = (newToken, userData) => {
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("user", JSON.stringify(userData));
-    setToken(newToken);
-    setUser(userData);
-    try {
-      const decoded = jwtDecode(newToken);
-      setUser({
-        user_id: decoded.user_id || null,
-        role_id: decoded.role_id || null,
-        token: newToken
-      });
-    } catch (err) {
-      console.error("Invalid token:", err);
-      setUser(null);
-    }
+  const login = (newToken) => {
+    setToken(newToken); // ✅ only token
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
     setToken(null);
-    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, setToken, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, token, login, logout }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
+

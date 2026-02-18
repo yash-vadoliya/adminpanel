@@ -6,12 +6,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Pagination from '../components/Pagination';
 import ROLES from '../Role';
 
+import useVehicles from "../Hooks/useVehicles";
+
 function Vehicles() {
     const { token, user } = useContext(AuthContext);
 
     // States
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editId, setEditId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -19,11 +21,16 @@ function Vehicles() {
     const [file, setFile] = useState(null);
     const fileInputRef = useRef();
 
+    const travel_id = user.travel_id;
+    console.log("Travel_id:", travel_id);
+    console.log("User:", user);
+
     // Filters
     const [statusFilter, setStatusFilter] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
     const [formData, setFormData] = useState({
+        vehicles_name: '',
         vehicles_type: '',
         brand: '',
         model_name: '',
@@ -42,30 +49,32 @@ function Vehicles() {
     // Role Base
     const isAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(user?.role_id);
 
+    const { vehicles, loading, fetchVehicles } = useVehicles();
+
 
     // Fetch vehicles
     useEffect(() => {
         fetchVehicles();
     }, []);
 
-    const fetchVehicles = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch(`${CONFIG.API_BASE_URL}/vehicles`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-            const vehicles = await res.json();
-            setData(vehicles[0] || []); // handle array in array
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const fetchVehicles = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const res = await fetch(`${CONFIG.API_BASE_URL}/vehicles`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${token}`,
+    //             },
+    //         });
+    //         const vehicles = await res.json();
+    //         setData(vehicles[0] || []); // handle array in array
+    //     } catch (err) {
+    //         console.error(err);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     // Handle form changes
     const handleChange = (e) => {
@@ -77,6 +86,7 @@ function Vehicles() {
     // Show form for Add
     const handleAdd = () => {
         setFormData({
+            vehicles_name: '',
             vehicles_type: '',
             brand: '',
             model_name: '',
@@ -126,6 +136,11 @@ function Vehicles() {
         }
     };
 
+    const getFileName = (path) => {
+        return path.split("\\").pop();
+    };
+
+
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         setFile(selectedFile);
@@ -141,6 +156,7 @@ function Vehicles() {
     // Submit form
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("editId :", editId);
 
         const method = editId ? 'PUT' : 'POST';
         const url = editId
@@ -177,11 +193,10 @@ function Vehicles() {
     };
 
     // Filtered data
-    const filteredData = data
+    const filteredData = vehicles
         .filter(v => v.record_status === 1)
         .filter(v => (statusFilter ? v.status === statusFilter : true))
         .filter(v => (searchTerm ? v.vehicles_number?.toLowerCase().includes(searchTerm.toLowerCase()) : true));
-
     // Pagination
     const indexOfLast = currentPage * itemsPerPage;
     const indexOfFirst = indexOfLast - itemsPerPage;
@@ -235,17 +250,47 @@ function Vehicles() {
                     <form onSubmit={handleSubmit}>
                         <div className="row g-3">
 
+                            {/* Vehicle Name */}
+                            <div className="col-md-3">
+                                <label className="form-label">Vehicle Name</label>
+                                <input
+                                    type="text"
+                                    name="vehicles_name"
+                                    className="form-control"
+                                    value={formData.vehicles_name || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
                             {/* Vehicle Type */}
                             <div className="col-md-3">
                                 <label className="form-label">Vehicle Type</label>
-                                <input
+                                {/* <input
                                     type="text"
-                                    name="vehicle_type"
+                                    name="vehicles_type"
                                     className="form-control"
                                     value={formData.vehicles_type || ""}
                                     onChange={handleChange}
                                     required
-                                />
+                                /> */}
+                                <select
+                                    name="vehicles_type"
+                                    className="form-select"
+                                    value={formData.vehicles_type || ""}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Select</option>
+                                    <option value="Sleeper">Sleeper</option>
+                                    <option value="AC Sleeper">AC Sleeper</option>
+                                    <option value="Seater">Seater</option>
+                                    <option value="AC Seater">AC Seater</option>
+                                    <option value="Volvo Sleeper">Volvo Sleeper</option>
+                                    <option value="Volvo Seater">Volvo Seater</option>
+                                    <option value="Mini Bus Seater">Mini Bus Seater</option>
+                                    <option value="Electric Seater">Electric Seater</option>
+                                </select>
                             </div>
 
                             {/* Brand */}
@@ -279,7 +324,7 @@ function Vehicles() {
                                 <label className="form-label">Vehicle Number</label>
                                 <input
                                     type="text"
-                                    name="vehicle_number"
+                                    name="vehicles_number"
                                     className="form-control"
                                     value={formData.vehicles_number || ""}
                                     onChange={handleChange}
@@ -292,7 +337,7 @@ function Vehicles() {
                                 <label className="form-label">Register Date</label>
                                 <input
                                     type="date"
-                                    name="register_date"
+                                    name="vehicles_register_date"
                                     className="form-control"
                                     value={formData.vehicles_register_date || ""}
                                     onChange={handleChange}
@@ -304,7 +349,7 @@ function Vehicles() {
                             <div className="col-md-3">
                                 <label className="form-label">Vehicle Condition</label>
                                 <select
-                                    name="vehicle_condition"
+                                    name="vehicles_condition"
                                     className="form-select"
                                     value={formData.vehicles_condition || ""}
                                     onChange={handleChange}
@@ -322,7 +367,7 @@ function Vehicles() {
                                 <label className="form-label">Number of Seats</label>
                                 <input
                                     type="number"
-                                    name="seat_count"
+                                    name="number_of_seats"
                                     className="form-control"
                                     value={formData.number_of_seats || ""}
                                     onChange={handleChange}
@@ -334,7 +379,7 @@ function Vehicles() {
                                 <label className="form-label">Number of Doors</label>
                                 <input
                                     type="number"
-                                    name="door_count"
+                                    name="number_of_doors"
                                     className="form-control"
                                     value={formData.number_of_doors || ""}
                                     onChange={handleChange}
@@ -445,6 +490,7 @@ function Vehicles() {
                     <thead className="table-dark" style={{ borderRadius: "12px 12px 0 0 " }}>
                         <tr>
                             <th>ID</th>
+                            <th>VEHICLE NAME</th>
                             <th>VEHICLE TYPE</th>
                             <th>BRAND</th>
                             <th>MODEL NAME</th>
@@ -472,6 +518,7 @@ function Vehicles() {
                             currentData.map((vehicle, index) => (
                                 <tr key={vehicle.vehicles_id || index}>
                                     <td>{vehicle.vehicles_id}</td>
+                                    <td>{vehicle.vehicles_name}</td>
                                     <td>{vehicle.vehicles_type}</td>
                                     <td>{vehicle.brand}</td>
                                     <td>{vehicle.model_name}</td>
@@ -486,6 +533,7 @@ function Vehicles() {
                                     <td>
                                         {vehicle.vehicle_image
                                             ? <img src={vehicle.vehicle_image} alt="vehicle" width="80" height="50" className="rounded border" />
+                                            // ? <img src={`http://localhost:3300/uploads/${getFileName(vehicle.vehicle_image)}`} alt="vehicle" width="80" height="50" className="rounded border" />
                                             : <span className="text-muted">N/A</span>}
                                     </td>
                                     <td>

@@ -52,9 +52,9 @@ function Promotion() {
       });
       if (!res.ok) throw new Error(`Error: ${res.status}`);
       const data = await res.json();
-      const flatData = Array.isArray(data[0]) ? data.flat() : data;
-      setPromo(flatData);
-      console.log("Promotions:", flatData);
+      // const flatData = Array.isArray(data[0]) ? data.flat() : data;
+      setPromo(data[0]);
+      console.log("Promotions:", data);
     } catch (err) {
       console.log("Error fetching data:", err);
     } finally {

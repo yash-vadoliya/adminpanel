@@ -36,7 +36,7 @@ const Sidebar = () => {
   return (
     <div
       className={`d-flex flex-column flex-shrink-0 p-3 bg-light  border-end position-relative`}
-      style={{ width: isExpanded ? "280px" : "80px", transition: "width 0.3s", height: '100vh' }}
+      style={{ width: isExpanded ? "280px" : "80px", transition: "width 0.3s", height: '100dvh', overflowY: "auto" }}
     >
       {/* Top Section */}
       <div className="d-flex align-items-center justify-content-between mb-3 ">
@@ -63,6 +63,43 @@ const Sidebar = () => {
             {isExpanded && "Dashboard"}
           </a>
         </li>
+
+        {/* <li>
+          <a href="/adduser" className="nav-link text-dark d-flex align-items-center">
+            <i className="bi bi-person-plus me-2"></i>
+            {isExpanded && <span>Add Admin </span>}
+          </a>
+        </li>
+
+        <li>
+          <a href="/travel" className="nav-link text-dark d-flex align-items-center">
+            <i className="bi bi-bus-front me-2"></i>
+            {isExpanded && <span>Travel Agency</span>}
+          </a>
+        </li> */}
+
+        <li>
+          {(user?.role_id === 1 || user?.role_id === 2) && (
+            <>
+              <a href="/adduser" className="nav-link text-dark d-flex align-items-center">
+                <i className="bi bi-person-plus me-2"></i>
+                {isExpanded && <span>Add Admin</span>}
+              </a>
+            </>
+          )}
+        </li>
+
+        <li>
+          {(user?.role_id === 1) && (
+            <>
+              <a href="/travel" className="nav-link text-dark d-flex align-items-center">
+                <i className="bi bi-bus-front me-2"></i>
+                {isExpanded && <span>Travel Agency</span>}
+              </a>
+            </>
+          )}
+        </li>
+
 
         {/* Shuttle (submenu) */}
         <li>
@@ -131,7 +168,7 @@ const Sidebar = () => {
 
               </li>
               <li>
-                <a href="#" className="nav-link text-dark d-flex align-items-center">
+                <a href="/cancel" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-x-circle me-2"></i>
                   Cancellation
                 </a>
@@ -139,7 +176,7 @@ const Sidebar = () => {
 
               </li>
               <li>
-                <a href="#" className="nav-link text-dark d-flex align-items-center">
+                <a href="/cancelreason" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-exclamation-triangle me-2"></i>
                   Cancellation Reasons
                 </a>
@@ -221,22 +258,24 @@ const Sidebar = () => {
             </ul>
           )}
         </li>
-
+        {/* driverdoc */}
         <li>
-          <a href="#" className="nav-link text-dark d-flex align-items-center">
+          <a href="/deleteaccount" className="nav-link text-dark d-flex align-items-center">
             <i className="bi bi-person-x me-2"></i>
             {isExpanded && "Delete Account Request"}
           </a>
-
-
+        </li>
+        <li>
+          <a href="driverdoc" className="nav-link text-dark d-flex align-items-center">
+            <i className="bi bi-file-earmark-person me-2"></i>
+            {isExpanded && "Driver Document"}
+          </a>
         </li>
         <li>
           <a href="#" className="nav-link text-dark d-flex align-items-center">
             <i className="bi bi-truck me-2"></i>
             {isExpanded && "Vehicle Type"}
           </a>
-
-
         </li>
         <li>
           <a href="/geofance" className="nav-link text-dark d-flex align-items-center">
@@ -273,7 +312,7 @@ const Sidebar = () => {
 
               </li>
               <li>
-                <a href="#" className="nav-link text-dark d-flex align-items-center">
+                <a href="/city" className="nav-link text-dark d-flex align-items-center">
                   <i className="bi bi-building me-2"></i>
                   City
                 </a>

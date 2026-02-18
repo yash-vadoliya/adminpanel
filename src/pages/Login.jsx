@@ -26,7 +26,7 @@ function Login() {
       if (data.token) {
         localStorage.setItem("token", data.token); // save token
         localStorage.setItem("user", JSON.stringify(data.user)); //save user
-        alert(data.message || "Login successful!"); // default alert
+        console.log(data.token);
         navigate("/dashboard"); // go to dashboard
       } else {
         alert(data.error || "Login failed"); // default alert
@@ -44,7 +44,7 @@ function Login() {
         style={{ width: "30rem", justifyContent: "center", height: "32rem" }}
       >
         <div className="card-body">
-          <h5 className="card-title text-center fs-1">Login</h5>
+          <h5 className="card-title text-center fs-1">Admin Login</h5>
           <p className="text-center text-muted">
             Enter your Username and Password to Login!
           </p>

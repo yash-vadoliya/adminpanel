@@ -22,7 +22,7 @@ function TripForm() {
         route_id: "",
         driver_id: "",
         vehicle_id: "",
-        trip_booked_date: "",
+        // trip_booked_date: "",
         policy_id: "",
         promotion_id: "",
         trip_date_from: "",
@@ -71,6 +71,8 @@ function TripForm() {
             const policiesdata = await policyRes.json();
             const promotionsdata = await promoRes.json();
 
+            // console.log(policiesdata);
+
             setRoutes(Array.isArray(routdata) ? routdata[0] : []);
             setDrivers(Array.isArray(driversdata) ? driversdata[0] : []);
             setVehicles(Array.isArray(vehiclesdata) ? vehiclesdata[0] : []);
@@ -94,7 +96,8 @@ function TripForm() {
             if (!res.ok) throw new Error(`Error: ${res.status}`);
             const Trip = await res.json();
             const flatTrips = Trip.flat();
-            setTrips(flatTrips);
+            console.log(Trip);
+            setTrips(Trip[0]);
         } catch (err) {
             console.log("Error fetching trips:", err);
         } finally {
@@ -108,7 +111,7 @@ function TripForm() {
             route_id: "",
             driver_id: "",
             vehicle_id: "",
-            trip_booked_date: "",
+            // trip_booked_date: "",
             policy_id: "",
             promotion_id: "",
             trip_date_from: "",
@@ -144,7 +147,7 @@ function TripForm() {
 
     const getPolicy = (id) => {
         const policy = policies.find(p => p.policy_id === id);
-        return policy ? (<span> <strong>{policy.cancellation_reason}</strong><br /> <small className="text-danger text-opacity-75">{policy.policy_id}</small> </span>) : id;
+        return policy ? (<span> <strong>{policy.name}</strong><br /> <small className="text-danger text-opacity-75">{policy.policy_id}</small> </span>) : id;
     };
 
     const getPromo = (id) => {
@@ -231,6 +234,12 @@ function TripForm() {
         }
     };
 
+    const formatDateSafe = (dateStr) => {
+        if (!dateStr) return "";
+        return dateStr.split("T")[0];
+    };
+
+
     const activeTrips = trips.filter((t) => t.record_status === 1);
     const indexOfLast = currentPage * itemsPerPage;
     const indexOfFirst = indexOfLast - itemsPerPage;
@@ -267,10 +276,12 @@ function TripForm() {
                             <div className="col-md-4 mb-2">
                                 <label className="form-label">Route</label>
                                 <Select
-                                    options={routes.map((r) => ({
-                                        value: r.route_id,
-                                        label: r.route_name,
-                                    }))}
+                                    options={routes
+                                        .filter((r) => r.record_status === 1)
+                                        .map((r) => ({
+                                            value: r.route_id,
+                                            label: r.route_name,
+                                        }))}
                                     value={
                                         formData.route_id
                                             ? {
@@ -291,10 +302,12 @@ function TripForm() {
                             <div className="col-md-4 mb-2">
                                 <label className="form-label">Driver</label>
                                 <Select
-                                    options={drivers.map((d) => ({
-                                        value: d.driver_id,
-                                        label: d.driver_name,
-                                    }))}
+                                    options={drivers
+                                        .filter((d) => d.record_status === 1)
+                                        .map((d) => ({
+                                            value: d.driver_id,
+                                            label: d.driver_name,
+                                        }))}
                                     value={
                                         formData.driver_id
                                             ? {
@@ -316,10 +329,12 @@ function TripForm() {
                             <div className="col-md-4 mb-2">
                                 <label className="form-label">Vehicle</label>
                                 <Select
-                                    options={vehicles.map((v) => ({
-                                        value: v.vehicles_id,
-                                        label: `${v.vehicles_type} (${v.vehicles_number})`,
-                                    }))}
+                                    options={vehicles
+                                        .filter((v) => v.record_status === 1)
+                                        .map((v) => ({
+                                            value: v.vehicles_id,
+                                            label: `${v.vehicles_type} (${v.vehicles_number})`,
+                                        }))}
                                     value={
                                         formData.vehicle_id
                                             ? {
@@ -345,7 +360,7 @@ function TripForm() {
                             </div>
 
                             {/* Trip Booked Date */}
-                            <div className="col-md-4 mb-2">
+                            {/* <div className="col-md-4 mb-2">
                                 <label className="form-label">Trip Booked Date</label>
                                 <input
                                     type="date"
@@ -354,16 +369,18 @@ function TripForm() {
                                     value={formData.trip_booked_date}
                                     onChange={handleChange}
                                 />
-                            </div>
+                            </div> */}
 
                             {/* Policy Dropdown */}
                             <div className="col-md-4 mb-2">
                                 <label className="form-label">Policy</label>
                                 <Select
-                                    options={policies.map((p) => ({
-                                        value: p.policy_id,
-                                        label: p.cancellation_reason,
-                                    }))}
+                                    options={policies
+                                        .filter((p) => p.record_status === 1)
+                                        .map((p) => ({
+                                            value: p.policy_id,
+                                            label: p.name,
+                                        }))}
                                     value={
                                         formData.policy_id
                                             ? {
@@ -371,7 +388,7 @@ function TripForm() {
                                                 label:
                                                     policies.find(
                                                         (p) => p.policy_id === formData.policy_id
-                                                    )?.cancellation_reason || "",
+                                                    )?.name || "",
                                             }
                                             : null
                                     }
@@ -385,10 +402,12 @@ function TripForm() {
                             <div className="col-md-4 mb-2">
                                 <label className="form-label">Promotion</label>
                                 <Select
-                                    options={promotions.map((p) => ({
-                                        value: p.promotion_id,
-                                        label: p.promotion_title,
-                                    }))}
+                                    options={promotions
+                                        .filter((p) => p.record_status === 1)
+                                        .map((p) => ({
+                                            value: p.promotion_id,
+                                            label: p.promotion_title,
+                                        }))}
                                     value={
                                         formData.promotion_id
                                             ? {
@@ -464,6 +483,7 @@ function TripForm() {
                                     onChange={handleChange}
                                 >
                                     <option value="">-- Select Day --</option>
+                                    <option value="Every Day">Everyday</option>
                                     <option value="Monday">Monday</option>
                                     <option value="Tuesday">Tuesday</option>
                                     <option value="Wednesday">Wednesday</option>
@@ -523,9 +543,10 @@ function TripForm() {
                                 <td>
                                     <td>
                                         {t.trip_date_from === t.trip_date_to
-                                            ? t.trip_date_from?.split("T")[0]
-                                            : `${t.trip_date_from?.split("T")[0]} - ${t.trip_date_to?.split("T")[0]}`}
+                                            ? formatDateSafe(t.trip_date_from)
+                                            : `${formatDateSafe(t.trip_date_from)} - ${formatDateSafe(t.trip_date_to)}`}
                                     </td>
+
 
                                 </td>
                                 <td>
@@ -534,7 +555,7 @@ function TripForm() {
                                 <td>{t.trip_day}</td>
                                 <td>₹{t.trip_fare}</td>
                                 <td>
-                                     <button
+                                    <button
                                         className="btn btn-info btn-sm me-2"
                                         onClick={() => setSelectedTrip(t)}
                                     >
@@ -554,7 +575,7 @@ function TripForm() {
                                             <Trash />
                                         </button>
                                     </>)}
-                                   
+
 
                                 </td>
                             </tr>
@@ -601,7 +622,7 @@ function TripForm() {
                                             ? selectedTrip.trip_date_from?.split("T")[0]
                                             : `${selectedTrip.trip_date_from?.split("T")[0]} - ${selectedTrip.trip_date_to?.split("T")[0]}`}
                                     </div>
-                                    <div className="col-md-6"><strong className="text-success">Booked Date:</strong> {selectedTrip.trip_booked_date?.split("T")[0]}</div>
+                                    {/* <div className="col-md-6"><strong className="text-success">Booked Date:</strong> {selectedTrip.trip_booked_date?.split("T")[0]}</div> */}
                                     <div className="col-md-6"><strong className="text-success">Time:</strong> {selectedTrip.trip_time_from} - {selectedTrip.trip_time_to}</div>
                                 </div>
 

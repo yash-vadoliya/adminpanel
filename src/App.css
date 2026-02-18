@@ -38,15 +38,14 @@
   }
 }
 
-/* Slide-in Trip Details Panel */
 .details-panel {
   position: fixed;
-  top: 50px;
+  top: 40px;
   /* space from top */
-  bottom: 150px;
+  bottom: 10px;
   /* space from bottom */
   right: -100%;
-  width: 35%;
+  width: min(420px, 100%);
   /* background: #fff;
   box-shadow: -3px 0 10px rgba(0, 0, 0, 0.3); */
   overflow-y: auto;
@@ -54,7 +53,6 @@
   z-index: 1050;
   padding: 20px;
   border-radius: 8px;
-
 }
 
 .details-panel.show {
@@ -114,15 +112,18 @@ textarea {
 }
 
 .day-cell.holiday {
-  background-color: #f8d7da; /* red for holiday/Sunday */
+  background-color: #f8d7da;
+  /* red for holiday/Sunday */
 }
 
 .day-cell.today {
-  background-color: #d4edda; /* green for today */
+  background-color: #d4edda;
+  /* green for today */
 }
 
 .day-cell.past {
-  background-color: #6c757d7a; /* dark for past */
+  background-color: #6c757d7a;
+  /* dark for past */
   color: #fff;
 }
 
@@ -152,3 +153,5 @@ textarea {
 .empty {
   background-color: transparent;
 }
+
+/* Home Page Css */

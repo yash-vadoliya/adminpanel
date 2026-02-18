@@ -22,6 +22,8 @@ const Dashboard = () => {
     const barChartInstance = useRef(null);
 
     useEffect(() => {
+        // window.location.reload();
+
         if (lineChartInstance.current) lineChartInstance.current.destroy();
         if (barChartInstance.current) barChartInstance.current.destroy();
 

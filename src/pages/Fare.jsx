@@ -88,8 +88,16 @@ function Fare() {
             : `${CONFIG.API_BASE_URL}/fare`;
 
         try {
+             let updatedData = { ...formData };
+
+        // 👉 Apply your logic before sending data
+        if (updatedData.fare_type === "fare_per_stop") {
+            updatedData.fare_per_KM = 0;
+        } else if (updatedData.fare_type === "fare_per_KM") {
+            updatedData.fare_per_stop = 0;
+        }
             const payload = {
-                ...formData,
+                ...updatedData,
                 adduid: user?.user_id || null,
             };
             const res = await fetch(url, {
