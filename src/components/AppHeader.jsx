@@ -43,14 +43,6 @@ function AppHeader() {
                                         <a className="nav-link text-dark" href="/features">Features</a>
                                    </li>
 
-                                   <li className="nav-item">
-                                        <a className="nav-link text-dark" href="#">Pricing</a>
-                                   </li>
-
-                                   <li className="nav-item">
-                                        <a className="nav-link text-dark" href="#">FAQs</a>
-                                   </li>
-
                                    {/* User dropdown */}
                                    <li className="nav-item dropdown">
                                         <a
@@ -65,10 +57,15 @@ function AppHeader() {
                                         </a>
 
                                         <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                             <li><a className="dropdown-item" href="#">Profile</a></li>
-                                             <li><a className="dropdown-item" href="#">Bookings</a></li>
+                                             <li><a className="dropdown-item" href="/profile">Profile</a></li>
                                              <li><hr className="dropdown-divider" /></li>
-                                             <li><a className="dropdown-item text-danger" href="/"><button onClick={handleLogout}>Logout</button></a></li>
+                                             <li>
+                                                  <button className="dropdown-item text-danger d-flex align-items-center" onClick={handleLogout}>
+                                                       <i className="bi bi-box-arrow-right me-2"></i>
+                                                       Logout
+                                                  </button>
+                                             </li>
+
                                         </ul>
                                    </li>
 

@@ -27,7 +27,7 @@ export default function useAll() {
                const activeRoutes = result[0]
                     ? result[0].filter(route => route.record_status == 1)
                     : [];
-               // console.log("Route:", activeRoutes);
+               console.log("Route:", activeRoutes);
                setRoutes(activeRoutes);
           } catch (err) {
                console.error("Route error:", err);
@@ -71,7 +71,10 @@ export default function useAll() {
                if (!res.ok) throw new Error(`Error: ${res.status}`);
                const Trip = await res.json();
                const flatTrips = Trip.flat();
-               // console.log("Trip:", Trip);
+               console.log("Trip:", Trip);
+               // console.log("Trips from DB:", Trip);
+               console.log("Trips Count:", Trip.length);
+
                setTrips(Trip[0]);
           } catch (err) {
                console.log("Error fetching trips:", err);
@@ -116,13 +119,16 @@ export default function useAll() {
           }
      };
 
-     const fetchTravels = async (travel_id) => {
+     const fetchTravels = async () => {
+
           try {
+               let res;
                setLoading(true);
-               const res = await fetch(`${CONFIG.API_BASE_URL}/travel/${travel_id}`, {
+               res = await fetch(`${CONFIG.API_BASE_URL}/travel`, {
                     headers: { Authorization: `Bearer ${token}` },
                });
                const result = await res.json();
+               // console.log("Travel Data :", result);
                setTravel(result[0] || []);
           } catch (err) {
                console.error("Error fetching travels:", err);

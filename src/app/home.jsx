@@ -10,6 +10,7 @@ import CONFIG from "../Config";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import useBooking from "../Hooks/useBooking";
+import RazorpayButton from "../components/RazorpayButton";
 
 
 function Home() {
@@ -134,6 +135,7 @@ function Home() {
     fetchBooking();
     fetchStops();
     fetchVehicles();
+    fetchTravels();
   }, []);
 
   const today = new Date().toISOString().split("T")[0];
@@ -156,23 +158,30 @@ function Home() {
   };
 
 
-
   const seatSelector = (trip) => {
+
     const totalSeats = Number(trip.number_of_seats || 50);
     const seats = Array.from({ length: totalSeats }, (_, i) => i + 1);
 
-
+    // 🔥 check vehicle type
+    const isSleeper = trip.vehicles_type?.toLowerCase().includes("sleeper");
 
     return (
       <div className="bus-container">
         <div className="driver-section">
           <div className="steering-icon">⭕</div>
         </div>
+
         <div className="seats-grid">
-          {/* Left Side (2 Seats) */}
+          {/* Left Side */}
           <div className="seat-column">
             {seats.filter(s => s % 5 === 1 || s % 5 === 2).map(s => (
-              <div key={s} className={`seat ${selectedSeats.includes(s) ? "selected" : ""}`} onClick={() => toggleSeat(s)}>
+              <div
+                key={s}
+                className={`seat ${isSleeper ? "sleeper-seat" : "seater-seat"} 
+              ${selectedSeats.includes(s) ? "selected" : ""}`}
+                onClick={() => toggleSeat(s)}
+              >
                 {s}
               </div>
             ))}
@@ -180,10 +189,15 @@ function Home() {
 
           <div className="aisle-gap"></div>
 
-          {/* Right Side (3 Seats) */}
+          {/* Right Side */}
           <div className="seat-column-triple">
             {seats.filter(s => s % 5 === 3 || s % 5 === 4 || s % 5 === 0).map(s => (
-              <div key={s} className={`seat ${selectedSeats.includes(s) ? "selected" : ""}`} onClick={() => toggleSeat(s)}>
+              <div
+                key={s}
+                className={`seat ${isSleeper ? "sleeper-seat" : "seater-seat"} 
+              ${selectedSeats.includes(s) ? "selected" : ""}`}
+                onClick={() => toggleSeat(s)}
+              >
                 {s}
               </div>
             ))}
@@ -192,6 +206,7 @@ function Home() {
       </div>
     );
   };
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -221,12 +236,47 @@ function Home() {
       return;
     }
 
-    // ✅ SAME AS OLD FILE (very important)
-    const matchedRoutes = route.filter(r =>
-      Number(r.record_status) === 1 &&
-      Number(r.start_city_id) === Number(from_city.city_id) &&
-      Number(r.end_city_id) === Number(to_city.city_id)
-    );
+    // Find route_ids where stop city matches from or to city
+    const matchedStopRouteIds = routestop
+      .filter(rs =>
+        Number(rs.city_id) === Number(from_city.city_id) ||
+        Number(rs.city_id) === Number(to_city.city_id)
+      )
+      .map(rs => Number(rs.route_id));
+
+
+    // 🔥 Match routes using city name instead of id
+    // const matchedRoutes = route.filter(r => {
+    //   const startCity = city.find(c => Number(c.city_id) === Number(r.start_city_id));
+    //   const endCity = city.find(c => Number(c.city_id) === Number(r.end_city_id));
+
+    //   if (!startCity || !endCity) return false;
+
+    //   return (
+    //     Number(r.record_status) === 1 &&
+    //     startCity.city_name.toLowerCase() === from.trim().toLowerCase() &&
+    //     endCity.city_name.toLowerCase() === to.trim().toLowerCase()
+    //   );
+    // });
+    const matchedRoutes = route.filter(r => {
+      const startCity = city.find(c => Number(c.city_id) === Number(r.start_city_id));
+      const endCity = city.find(c => Number(c.city_id) === Number(r.end_city_id));
+
+      if (!startCity || !endCity) return false;
+
+      const isDirectMatch =
+        Number(r.record_status) === 1 &&
+        startCity.city_name.toLowerCase() === from.trim().toLowerCase() &&
+        endCity.city_name.toLowerCase() === to.trim().toLowerCase();
+
+      const isStopMatch =
+        Number(r.record_status) === 1 &&
+        matchedStopRouteIds.includes(Number(r.route_id));
+
+      return isDirectMatch || isStopMatch;
+    });
+
+
 
     if (matchedRoutes.length === 0) {
       setResults([]);
@@ -234,14 +284,21 @@ function Home() {
     }
 
     // 🔥 route + trip (old logic)
-    const routeTripData = trips
-      .filter(t => matchedRoutes.some(r => Number(r.route_id) === Number(t.route_id)))
-      .map(t => {
-        const matchedRoute = matchedRoutes.find(
-          r => Number(r.route_id) === Number(t.route_id)
-        );
-        return { ...matchedRoute, ...t };
+    const routeTripData = [];
+
+    matchedRoutes.forEach(r => {
+      const relatedTrips = trips.filter(
+        t => Number(t.route_id) === Number(r.route_id)
+      );
+
+      relatedTrips.forEach(t => {
+        routeTripData.push({
+          ...r,
+          ...t
+        });
       });
+    });
+
 
     // 🔥 + vehicle (old logic)
     const finalData = routeTripData.map(t => {
@@ -259,76 +316,76 @@ function Home() {
     setResults(finalData);
   };
 
-  const handleConfirmPayment = async () => {
-    if (!paymentType) {
-      alert("Please select payment method");
-      return;
-    }
+  // const handleConfirmPayment = async () => {
+  //   if (!paymentType) {
+  //     alert("Please select payment method");
+  //     return;
+  //   }
 
-    const booking_reference = "BK" + Date.now();
+  //   const booking_reference = "BK" + Date.now();
 
-    const bookingPayload = {
-      booking_reference,
-      trip_id: selectedTrip.trip_id,
-      created_by_user_id: user?.role_id <= 5 ? user.user_id : null,
-      end_user_id: user?.role_id === 6 ? user.user_id : null,
+  //   const bookingPayload = {
+  //     booking_reference,
+  //     trip_id: selectedTrip.trip_id,
+  //     created_by_user_id: user?.role_id <= 5 ? user.user_id : null,
+  //     end_user_id: user?.role_id === 6 ? user.user_id : null,
 
-      pickup_point: pickup,
-      drop_point: drop,
+  //     pickup_point: pickup,
+  //     drop_point: drop,
 
-      payment_type: paymentType,
-      payment_status: "PAID",
-      booking_status: "CONFIRMED",
+  //     payment_type: paymentType,
+  //     payment_status: "PAID",
+  //     booking_status: "CONFIRMED",
 
-      total_seats: selectedSeats.length,
-      total_amount: totalAmount,
-      travelling_date: journeyDate,
+  //     total_seats: selectedSeats.length,
+  //     total_amount: totalAmount,
+  //     travelling_date: journeyDate,
 
-      seats: selectedSeats,
-      passengers: passengers
-    };
+  //     seats: selectedSeats,
+  //     passengers: passengers
+  //   };
 
-    const ok = await saveBooking(bookingPayload);
+  //   const ok = await saveBooking(bookingPayload);
 
-    if (ok) {
-      alert("Booking Successful 🎉");
+  //   if (ok) {
+  //     alert("Booking Successful 🎉");
 
-      const bookingDate = new Date().toISOString().split("T")[0];
+  //     const bookingDate = new Date().toISOString().split("T")[0];
 
-      generatePDF({
-        travel: travel?.[0] || {},
-        selectedTrip,
-        passengers,
-        pickupStop: pickupStops.find(s => s.stop_id == pickup)?.stop_name || "",
-        dropStop: dropStops.find(s => s.stop_id == drop)?.stop_name || "",
-        totalAmount,
-        paymentType,
-        paymentStatus: "PAID",
-        vehicleNumber: selectedTrip?.vehicles_number || "",
-        bookingDate,
-        tripDate: journeyDate,
-        booking_reference,
-        startCityName: startCity?.city_name || "",
-        endCityName: endCity?.city_name || ""
-      });
+  //     generatePDF({
+  //       travel: travel?.[0] || {},
+  //       selectedTrip,
+  //       passengers,
+  //       pickupStop: pickupStops.find(s => s.stop_id == pickup)?.stop_name || "",
+  //       dropStop: dropStops.find(s => s.stop_id == drop)?.stop_name || "",
+  //       totalAmount,
+  //       paymentType,
+  //       paymentStatus: "PAID",
+  //       vehicleNumber: selectedTrip?.vehicles_number || "",
+  //       bookingDate,
+  //       tripDate: journeyDate,
+  //       booking_reference,
+  //       startCityName: startCity?.city_name || "",
+  //       endCityName: endCity?.city_name || ""
+  //     });
+
+  //     setShowPayment(false);
+  //     setSelectedSeats([]);
+  //     setPassengers([]);
+  //   }
+
+  // };
+
+  // const startCity = selectedTrip
+  //   ? city.find(c => Number(c.city_id) === Number(selectedTrip.start_city_id))
+  //   : null;
+
+  // const endCity = selectedTrip
+  //   ? city.find(c => Number(c.city_id) === Number(selectedTrip.end_city_id))
+  //   : null;
 
 
-
-      setShowPayment(false);
-      setSelectedSeats([]);
-      setPassengers([]);
-    }
-
-  };
-  const startCity = selectedTrip
-    ? city.find(c => Number(c.city_id) === Number(selectedTrip.start_city_id))
-    : null;
-
-  const endCity = selectedTrip
-    ? city.find(c => Number(c.city_id) === Number(selectedTrip.end_city_id))
-    : null;
-
-
+  // Genrate PDF
   const generatePDF = ({
     booking_reference,
     selectedTrip,
@@ -557,6 +614,18 @@ function Home() {
     };
   }, [selectedTrip]);
 
+  // Get Travel Names by their ID
+  const getTravelName = (travel_id) => {
+    // console.log("Travel : ", travel);
+    const found = travel.find(
+      (t) => Number(t.travel_id) === Number(travel_id)
+    );
+
+    return found ? (found.travel_name || found.name) : "";
+  };
+
+
+
 
   // ✅ Amenity reusable UI
   const Amenity = (icon, text) => (
@@ -629,6 +698,8 @@ function Home() {
               <div className="row align-items-center">
                 <div className="col-md-4">
                   <h4 className="mb-0">{t.trip_name}</h4>
+                  {/* <h2>{t.travel_id}</h2> */}
+                  <p>{getTravelName(t.travel_id)}</p>
                   <span className="badge bg-info text-dark">{t.vehicles_type}</span>
                 </div>
                 <div className="col-md-3">
@@ -643,7 +714,7 @@ function Home() {
 
                   <button className="btn btn-success px-4" onClick={() => {
                     setSelectedTrip(t); setShowSeat(true); fetchData(t.route_id);
-                    fetchTravels(t.travel_id); fetchThreshold(t.policy_id); fetchPromo(t.promotion_id);
+                    fetchThreshold(t.policy_id); fetchPromo(t.promotion_id);
                   }}>
                     Select Seats
                   </button>
@@ -1034,8 +1105,10 @@ function Home() {
                 {/* Total Amount */}
                 <h5 className="mb-3">Total Amount: ₹{totalAmount}</h5>
 
+                <RazorpayButton amount={totalAmount} />
+
                 {/* Payment Type */}
-                <label className="form-label">Select Payment Method</label>
+                {/* <label className="form-label">Select Payment Method</label>
                 <select
                   className="form-select mb-3"
                   value={paymentType}
@@ -1046,10 +1119,10 @@ function Home() {
                   <option value="CASH">Cash</option>
                   <option value="UPI">UPI</option>
                   <option value="CARD">Card</option>
-                </select>
+                </select> */}
 
                 {/* UPI ID (only if UPI selected) */}
-                {paymentType === "UPI" && (
+                {/* {paymentType === "UPI" && (
                   <>
                     <label className="form-label">Enter UPI ID</label>
                     <input
@@ -1060,10 +1133,10 @@ function Home() {
                       onChange={(e) => setUpiId(e.target.value)}
                     />
                   </>
-                )}
+                )} */}
 
                 {/* Card Details (only if Card selected) */}
-                {paymentType === "CARD" && (
+                {/* {paymentType === "CARD" && (
                   <>
                     <label className="form-label">Card Number</label>
                     <input
@@ -1095,17 +1168,17 @@ function Home() {
                       </div>
                     </div>
                   </>
-                )}
+                )} */}
               </div>
 
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <button
                   className="btn btn-success w-100"
                   onClick={handleConfirmPayment}
                 >
                   Pay & Confirm Booking
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

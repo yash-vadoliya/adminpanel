@@ -225,8 +225,9 @@ function Cancellation() {
         <button
           className="btn btn-success"
           onClick={() => {
+            // setShowForm(true);
             setShowForm((s) => !s);
-            if (!showForm) handleCloseForm();
+            // if (!showForm) handleCloseForm();
           }}
         >
           {showForm ? "Close" : "Add Policy"}
@@ -239,7 +240,7 @@ function Cancellation() {
           <h5>{editMode ? "Edit Policy" : "Add New Policy"}</h5>
 
           <form onSubmit={handleSubmit}>
-            
+
             {/* --- Policy Input Section --- */}
             <div className="row mb-3">
               <div className="col-md-5">
@@ -415,10 +416,10 @@ function Cancellation() {
 
                         {thresholds.filter((t) => t.policy_id === p.policy_id).length ===
                           0 && (
-                          <tr>
-                            <td colSpan="3">No rules</td>
-                          </tr>
-                        )}
+                            <tr>
+                              <td colSpan="3">No rules</td>
+                            </tr>
+                          )}
                       </tbody>
                     </table>
                   </td>

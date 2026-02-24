@@ -2,6 +2,8 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import CONFIG from "../Config";
 import { AuthContext } from "../AuthContext";
+import './Home.css';
+
 
 function Applogin() {
      const [user_name, setUser_name] = useState("");
@@ -40,9 +42,9 @@ function Applogin() {
      };
 
      return (
-          <div className="container d-flex justify-content-center align-items-center vh-100">
+          <div className="login-page d-flex justify-content-center align-items-center vh-100">
                <div
-                    className="card shadow-lg"
+                    className="card shadow-lg "
                     style={{ width: "30rem", justifyContent: "center", height: "32rem" }}
                >
                     <div className="card-body">
@@ -129,7 +131,7 @@ function Applogin() {
                          </form>
                     </div>
                </div>
-          </div>
+          </div >
      );
 }
 

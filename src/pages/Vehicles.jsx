@@ -431,6 +431,7 @@ function Vehicles() {
                                     className="form-control"
                                     onChange={handleFileChange}
                                 />
+                                <div className="muted">Jpg Images is Allow</div>
                                 {formData.vehicle_image && (
                                     <div className="mt-2 text-center">
                                         <img

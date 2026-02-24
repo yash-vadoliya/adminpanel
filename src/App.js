@@ -17,6 +17,8 @@ import SplashHome from "./app/SplceHome";
 import Applogin from "./app/Applogin";
 import AppRegister from "./app/AppRegister";
 import Features from "./app/features";
+import Profile from "./app/Profile";
+
 // import SeatSelcetion from "./app/SeatSelcetion";
 
 /* ================= ADMIN ================= */
@@ -110,6 +112,7 @@ function App() {
         <Route element={<UserLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/features" element={<Features />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
         {/* ========== ADMIN PUBLIC ========= */}

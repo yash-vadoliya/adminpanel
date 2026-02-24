@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CONFIG from "../Config";
+import './Home.css';
 
 function AppRegister() {
   const [formData, setFormData] = useState({
@@ -16,29 +17,43 @@ function AppRegister() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === "profile_image") {
+      setFormData({
+        ...formData,
+        profile_image: e.target.files[0]
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [e.target.name]: e.target.value
+      });
+    }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if password and retype password are the same
     if (formData.password !== formData.retype_password) {
-      alert("Error: Passwords do not match. Record will not be saved.");
-      return; // Stop execution
+      alert("Passwords do not match.");
+      return;
     }
 
     try {
+      const formDataToSend = new FormData();
+
+      formDataToSend.append("user_name", formData.user_name);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("phone_number", formData.phone_number);
+      formDataToSend.append("password", formData.password);
+
+      if (formData.profile_image) {
+        formDataToSend.append("profile_image", formData.profile_image);
+      }
+
       const res = await fetch(`${CONFIG.API_BASE_URL}/enduser`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_name: formData.user_name,
-          email: formData.email,
-          phone_number: formData.phone_number,
-          profile_image: formData.profile_image,
-          password: formData.password
-        }),
+        body: formDataToSend,  // ❌ NO JSON
       });
 
       const data = await res.json();
@@ -55,8 +70,9 @@ function AppRegister() {
     }
   };
 
+
   return (
-    <div className="container d-flex justify-content-center align-items-center vh-100 mt-5 mb-5">
+    <div className="login-page d-flex justify-content-center align-items-center vh-100 mt-5 mb-5">
       <div className="card shadow-lg" style={{ width: "35rem" }}>
         <div className="card-body p-4">
           <h5 className="card-title text-center fs-1">Register</h5>
@@ -96,7 +112,7 @@ function AppRegister() {
               <label className="form-label">Profile Image URL (Optional)</label>
               <div className="input-group">
                 <span className="input-group-text"><i className="bi bi-image"></i></span>
-                <input type="file" name="profile_image" className="form-control" placeholder="Paste image link" value={formData.profile_image} onChange={handleChange} />
+                <input type="file" name="profile_image" className="form-control" placeholder="Paste image link" onChange={handleChange} />
               </div>
             </div>
 
@@ -131,7 +147,7 @@ function AppRegister() {
 
             <div className="text-center pt-3">
               <span>Already have an account? </span>
-              <a href="/login" className="text-decoration-none">Login here</a>
+              <a href="/applogin" className="text-decoration-none">Login here</a>
             </div>
           </form>
         </div>

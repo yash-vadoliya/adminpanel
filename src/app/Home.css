@@ -1,3 +1,23 @@
+/* Login Page */
+.login-page {
+  min-height: 100vh;
+  /* background: linear-gradient(135deg, #667eea, #764ba2); */
+  /* background: linear-gradient(135deg, #ff416c, #ff4b2b); */
+  /* background: linear-gradient(135deg, #11998e, #38ef7d); */
+  /* background: linear-gradient(135deg, #232526, #414345); */
+  /* background: linear-gradient(135deg, #dbeafe, #f0f9ff); */
+  background: linear-gradient(135deg, #e3f2fd, #8b90a8);
+}
+
+.card {
+  border-radius: 15px;
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+
 /* Layout & Hero */
 .hero-section {
   background: linear-gradient(135deg, #2b32b2, #1488cc);
@@ -80,6 +100,18 @@
   background: #28a745;
   color: white;
   border-color: #28a745;
+}
+
+.seater-seat {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.sleeper-seat {
+  width: 60px;
+  height: 70px;
+  line-height: 70px;
 }
 
 /* Seat Selection Panel Overlay */

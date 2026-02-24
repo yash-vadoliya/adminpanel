@@ -33,25 +33,26 @@ const SplashHome = () => {
      }, [navigate]);
 
      return (
-          <div className="d-flex justify-content-center align-items-center vh-100 bg-white">
+          <div className="d-flex justify-content-center align-items-center vh-100 bg-white px-3">
                <div
-                    className="text-center px-4"
-                    style={{ maxWidth: "420px", width: "100%" }}
+                    className="text-center w-100"
+                    style={{ maxWidth: "420px" }}
                >
                     {/* Logo */}
                     <img
                          src={AppLogo}
                          alt="Bus Booking System"
-                         style={{ width: "400px", marginBottom: "10px" }}
+                         className="img-fluid mb-3"
+                         style={{ maxWidth: "250px", width: "100%" }}
                     />
 
                     {/* Title */}
-                    <h2 className="fw-bold text-dark mb-2">
+                    <h2 className="fw-bold text-dark mb-2 fs-4 fs-md-3">
                          Welcome to <br /> Bus Ride Service
                     </h2>
 
                     {/* Subtitle */}
-                    <p className="text-muted mb-4">
+                    <p className="text-muted mb-4 small">
                          Best Bus Booking System
                     </p>
 
@@ -74,6 +75,7 @@ const SplashHome = () => {
                </div>
           </div>
      );
+
 };
 
 export default SplashHome;
