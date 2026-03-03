@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../AuthContext";
 import CONFIG from "../Config";
 import { PencilSquare, Trash } from "react-bootstrap-icons";
+import Pagination from '../components/Pagination';
+
 
 function City() {
   const { token, user } = useContext(AuthContext);
@@ -11,6 +13,10 @@ function City() {
   const [showForm, setShowForm] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // rows per page
+  const [statusFilter, setStatusFilter] = useState('');
+
 
   const [formData, setFormData] = useState({
     city_id: "",
@@ -143,6 +149,19 @@ function City() {
     c.city_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredData = cities
+    .filter(c => c.record_status === 1)
+    .filter(c =>
+      c.city_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter(c => (statusFilter ? c.status === statusFilter : true));
+
+
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentData = filteredData.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -271,12 +290,12 @@ function City() {
               <tr>
                 <td colSpan="8">Loading...</td>
               </tr>
-            ) : filteredCities.length === 0 ? (
+            ) : currentData.length === 0 ? (
               <tr>
                 <td colSpan="8">No cities found</td>
               </tr>
             ) : (
-              filteredCities.map((c) => (
+              currentData.map((c) => (
                 <tr key={c.city_id}>
                   <td>{c.city_id}</td>
                   <td>{c.city_name}</td>
@@ -306,6 +325,13 @@ function City() {
             )}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredData.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
+
       </div>
     </>
   );

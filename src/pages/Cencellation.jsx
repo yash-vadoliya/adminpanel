@@ -221,7 +221,7 @@ function Cancellation() {
   return (
     <>
       <div className="d-flex justify-content-between mb-3">
-        <h2>Cancellation Policy</h2>
+        <h2 className="ps-5 pt-3">Cancellation Policy</h2>
         <button
           className="btn btn-success"
           onClick={() => {
@@ -355,8 +355,8 @@ function Cancellation() {
       )}
 
       {/* POLICIES TABLE */}
-      <div className="table-responsive">
-        <table className="table table-bordered text-center">
+      <div className="table-responsive  rounded-3 ">
+        <table className="table table-bordered text-center ">
           <thead className="table-dark">
             <tr>
               <th>ID</th>
@@ -381,65 +381,67 @@ function Cancellation() {
             )}
 
             {!loading &&
-              policies.map((p) => (
-                <tr key={p.policy_id}>
-                  <td>{p.policy_id}</td>
-                  <td>{p.name}</td>
-                  <td>
-                    {p.status === "Active" ? (
-                      <span className="badge bg-success px-3 py-2 fs-6">Active</span>
-                    ) : (
-                      <span className="badge bg-danger px-3 py-2 fs-6">Inactive</span>
-                    )}
-                  </td>
+              policies
+                .filter((p) => p.record_status == 1)
+                .map((p) => (
+                  <tr key={p.policy_id}>
+                    <td>{p.policy_id}</td>
+                    <td>{p.name}</td>
+                    <td>
+                      {p.status === "Active" ? (
+                        <span className="badge bg-success px-3 py-2 fs-6">Active</span>
+                      ) : (
+                        <span className="badge bg-danger px-3 py-2 fs-6">Inactive</span>
+                      )}
+                    </td>
 
-                  <td style={{ textAlign: "left" }}>
-                    <table className="table table-sm table-bordered">
-                      <thead>
-                        <tr>
-                          <th>Min</th>
-                          <th>Max</th>
-                          <th>Refund</th>
-                        </tr>
-                      </thead>
+                    <td style={{ textAlign: "left" }}>
+                      <table className="table table-sm table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th>Refund</th>
+                          </tr>
+                        </thead>
 
-                      <tbody>
-                        {thresholds
-                          .filter((t) => t.policy_id === p.policy_id)
-                          .map((t) => (
-                            <tr key={t.id}>
-                              <td>{t.min_time}</td>
-                              <td>{t.max_time}</td>
-                              <td>{t.refund}%</td>
-                            </tr>
-                          ))}
+                        <tbody>
+                          {thresholds
+                            .filter((t) => t.policy_id === p.policy_id)
+                            .map((t) => (
+                              <tr key={t.id}>
+                                <td>{t.min_time}</td>
+                                <td>{t.max_time}</td>
+                                <td>{t.refund}%</td>
+                              </tr>
+                            ))}
 
-                        {thresholds.filter((t) => t.policy_id === p.policy_id).length ===
-                          0 && (
-                            <tr>
-                              <td colSpan="3">No rules</td>
-                            </tr>
-                          )}
-                      </tbody>
-                    </table>
-                  </td>
+                          {thresholds.filter((t) => t.policy_id === p.policy_id).length ===
+                            0 && (
+                              <tr>
+                                <td colSpan="3">No rules</td>
+                              </tr>
+                            )}
+                        </tbody>
+                      </table>
+                    </td>
 
-                  <td>
-                    <button
-                      className="btn btn-sm btn-info me-2"
-                      onClick={() => handleEdit(p)}
-                    >
-                      <PencilSquare /> Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDelete(p.policy_id)}
-                    >
-                      <Trash /> Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    <td>
+                      <button
+                        className="btn btn-sm btn-info me-2"
+                        onClick={() => handleEdit(p)}
+                      >
+                        <PencilSquare /> Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDelete(p.policy_id)}
+                      >
+                        <Trash /> Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>

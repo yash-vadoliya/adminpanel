@@ -2,7 +2,7 @@ import React from 'react';
 import axois from 'axios';
 import CONFIG from '../Config';
 
-const RazorpayButton = ({ amount }) => {
+const RazorpayButton = ({ amount, onSuccess }) => {
 
   const handlePayment = async () => {
     const { data: order } = await axois.post(
@@ -22,8 +22,16 @@ const RazorpayButton = ({ amount }) => {
           `${CONFIG.API_BASE_URL}/verify-payment`,
           response
         );
-        alert("Payment Sucessfully");
+        // alert("Payment Sucessfully");
+        if (onSuccess) {
+          onSuccess(response);   // <-- send response to Home
+        }
+        // setPaymentMessage("Payment Successfully Completed ✅");
       },
+
+      // theme: {
+      //   color: "#dc3545"
+      // }
       theme: {
         color: "#3399cc",
       },
