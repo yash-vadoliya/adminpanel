@@ -155,3 +155,16 @@ textarea {
 }
 
 /* Home Page Css */
+.zoom-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  transition: transform 0.3s ease, z-index 0.3s;
+  position: relative;
+}
+
+.zoom-img:hover {
+  transform: scale(4);
+  /* 🔥 4X Zoom */
+  z-index: 1000;
+}

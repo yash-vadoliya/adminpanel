@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../AuthContext";
-import CONFIG from "../Config";
+import CONFIG from "../Config"
 import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
 import Select from "react-select"; // ✅ import react-select
 import "../App.css";
@@ -25,15 +25,12 @@ function TripForm() {
         // trip_booked_date: "",
         policy_id: "",
         promotion_id: "",
-        trip_date_from: "",
-        trip_date_to: "",
         trip_time_from: "",
         trip_time_to: "",
-        trip_day: "",
+        trip_day: [],
         trip_fare: "",
         adduid: user?.user_id || "",
     });
-
 
     const [routes, setRoutes] = useState([]);
     const [drivers, setDrivers] = useState([]);
@@ -43,7 +40,6 @@ function TripForm() {
 
     // Role Base
     const isAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(user?.role_id);
-
 
     useEffect(() => {
         fetchDropdownData();
@@ -114,8 +110,6 @@ function TripForm() {
             // trip_booked_date: "",
             policy_id: "",
             promotion_id: "",
-            trip_date_from: "",
-            trip_date_to: "",
             trip_time_from: "",
             trip_time_to: "",
             trip_day: "",
@@ -155,17 +149,91 @@ function TripForm() {
         return promo ? (<span> <strong>{promo.promotion_title}</strong><br /> <small className="text-danger text-opacity-75">{promo.promotion_id}</small> </span>) : id;
     };
 
-    const handleSelectChange = (selectedOption, name) => {
+    // const handleSelectChange = (selectedOption, name) => {
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         [name]: selectedOption ? selectedOption.value : "",
+    //     }));
+    // };
+    const handleSelectChange = (selectedOption, field) => {
         setFormData((prev) => ({
             ...prev,
-            [name]: selectedOption ? selectedOption.value : "",
+            [field]: selectedOption ? selectedOption.value : null,
+
+            // auto set trip name when route selected
+            ...(field === "route_id" && {
+                trip_name: selectedOption ? selectedOption.label : ""
+            })
         }));
     };
+
+    const handleDayChange = (e) => {
+        const { value, checked } = e.target;
+
+        let updatedDays = [...(formData.trip_day || [])];
+
+        if (value === "Everyday") {
+
+            if (checked) {
+                updatedDays = [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
+                    "Everyday"
+                ];
+            } else {
+                updatedDays = [];
+            }
+
+        } else {
+
+            if (checked) {
+                updatedDays.push(value);
+            } else {
+                updatedDays = updatedDays.filter(day => day !== value);
+                updatedDays = updatedDays.filter(day => day !== "Everyday");
+            }
+
+            const allDays = [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ];
+
+            const allSelected = allDays.every(day => updatedDays.includes(day));
+
+            if (allSelected) {
+                updatedDays.push("Everyday");
+            }
+
+        }
+
+        setFormData({
+            ...formData,
+            trip_day: updatedDays
+        });
+    };
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const payload = { ...formData, adduid: user?.user_id || null };
+            console.log("Trip Token:", token);
+            const payload = {
+                ...formData,
+                trip_day: formData.trip_day.join(","),
+                adduid: user?.user_id
+            };
+
             const url = editId
                 ? `${CONFIG.API_BASE_URL}/trip/${editId}`
                 : `${CONFIG.API_BASE_URL}/trip`;
@@ -210,8 +278,7 @@ function TripForm() {
 
         setFormData({
             ...rest,
-            trip_date_from: formatDate(rest.trip_date_from),
-            trip_date_to: formatDate(rest.trip_date_to),
+            trip_day: rest.trip_day ? rest.trip_day.split(",") : [],
             trip_time_from: formatTime(rest.trip_time_from),
             trip_time_to: formatTime(rest.trip_time_to),
         });
@@ -260,17 +327,6 @@ function TripForm() {
                     <h5>{editId ? "Update Trip" : "Add Trip"}</h5>
                     <form onSubmit={handleSubmit}>
                         <div className="row">
-                            {/* Trip Name */}
-                            <div className="col-md-4 mb-2">
-                                <label className="form-label">Trip Name</label>
-                                <input
-                                    type="text"
-                                    name="trip_name"
-                                    className="form-control"
-                                    value={formData.trip_name}
-                                    onChange={handleChange}
-                                />
-                            </div>
 
                             {/* Route Dropdown (Searchable) */}
                             <div className="col-md-4 mb-2">
@@ -297,6 +353,21 @@ function TripForm() {
                                     placeholder="Search or select route..."
                                 />
                             </div>
+
+
+                            {/* Trip Name */}
+                            <div className="col-md-4 mb-2">
+                                <label className="form-label">Trip Name</label>
+                                <input
+                                    type="text"
+                                    name="trip_name"
+                                    className="form-control"
+                                    value={formData.trip_name}
+                                    // onChange={handleChange}
+                                    readOnly
+                                />
+                            </div>
+
 
                             {/* Driver Dropdown */}
                             <div className="col-md-4 mb-2">
@@ -359,18 +430,6 @@ function TripForm() {
                                 />
                             </div>
 
-                            {/* Trip Booked Date */}
-                            {/* <div className="col-md-4 mb-2">
-                                <label className="form-label">Trip Booked Date</label>
-                                <input
-                                    type="date"
-                                    name="trip_booked_date"
-                                    className="form-control"
-                                    value={formData.trip_booked_date}
-                                    onChange={handleChange}
-                                />
-                            </div> */}
-
                             {/* Policy Dropdown */}
                             <div className="col-md-4 mb-2">
                                 <label className="form-label">Policy</label>
@@ -425,30 +484,6 @@ function TripForm() {
                                 />
                             </div>
 
-                            {/* Trip Date From */}
-                            <div className="col-md-4 mb-2">
-                                <label className="form-label">Trip Date From</label>
-                                <input
-                                    type="date"
-                                    name="trip_date_from"
-                                    className="form-control"
-                                    value={formData.trip_date_from}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            {/* Trip Date To */}
-                            <div className="col-md-4 mb-2">
-                                <label className="form-label">Trip Date To</label>
-                                <input
-                                    type="date"
-                                    name="trip_date_to"
-                                    className="form-control"
-                                    value={formData.trip_date_to}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
                             {/* Trip Time From */}
                             <div className="col-md-4 mb-2">
                                 <label className="form-label">Trip Time From</label>
@@ -473,8 +508,20 @@ function TripForm() {
                                 />
                             </div>
 
-                            {/* Trip Day */}
+                            {/* Trip Fare */}
                             <div className="col-md-4 mb-2">
+                                <label className="form-label">Trip Fare</label>
+                                <input
+                                    type="text"
+                                    name="trip_fare"
+                                    className="form-control"
+                                    value={formData.trip_fare}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            {/* Trip Day */}
+                            {/* <div className="col-md-4 mb-2">
                                 <label className="form-label">Trip Day</label>
                                 <select
                                     name="trip_day"
@@ -492,20 +539,40 @@ function TripForm() {
                                     <option value="Saturday">Saturday</option>
                                     <option value="Sunday">Sunday</option>
                                 </select>
+                            </div> */}
+                            <div className="col-md-12 mb-2">
+                                <label className="form-label">Trip Day</label>
+
+                                <div className="d-flex flex-wrap gap-3">
+                                    {[
+                                        "Everyday",
+                                        "Monday",
+                                        "Tuesday",
+                                        "Wednesday",
+                                        "Thursday",
+                                        "Friday",
+                                        "Saturday",
+                                        "Sunday"
+                                    ].map((day) => (
+                                        <div className="form-check form-check-inline" key={day}>
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                value={day}
+                                                checked={formData.trip_day?.includes(day) || false}
+                                                onChange={(e) => handleDayChange(e)}
+                                            />
+                                            <label className="form-check-label">{day}</label>
+                                        </div>
+                                    ))}
+
+                                </div>
                             </div>
 
-                            {/* Trip Fare */}
-                            <div className="col-md-4 mb-2">
-                                <label className="form-label">Trip Fare</label>
-                                <input
-                                    type="text"
-                                    name="trip_fare"
-                                    className="form-control"
-                                    value={formData.trip_fare}
-                                    onChange={handleChange}
-                                />
-                            </div>
+
                         </div>
+
+
 
                         <button type="submit" className="btn btn-primary me-2">
                             {editId ? "Update" : "Add"}
@@ -528,7 +595,7 @@ function TripForm() {
                         <tr>
                             <th>ID</th>
                             <th>TRIP NAME</th>
-                            <th>TRIP DATE</th>
+                            {/* <th>TRIP DATE</th> */}
                             <th>TRIP TIME</th>
                             <th>TRIP DAY</th>
                             <th>FARE</th>
@@ -536,23 +603,29 @@ function TripForm() {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentData.map((t, i) => (
-                            <tr key={i}>
+                        {currentData.map((t) => (
+                            <tr key={t.trip_id}>
                                 <td>{t.trip_id}</td>
                                 <td>{t.trip_name}</td>
-                                <td>
-                                    <td>
-                                        {t.trip_date_from === t.trip_date_to
+                                {/* <td>
+                                    <p>
+                                        {t.trip_time_from === t.trip_time_to
                                             ? formatDateSafe(t.trip_date_from)
                                             : `${formatDateSafe(t.trip_date_from)} - ${formatDateSafe(t.trip_date_to)}`}
-                                    </td>
-
-
-                                </td>
+                                    </p>
+                                </td> */}
                                 <td>
                                     {t.trip_time_from} - {t.trip_time_to}
                                 </td>
-                                <td>{t.trip_day}</td>
+                                <td>
+                                    {t.trip_day?.includes("Everyday")
+                                        ? "Everyday"
+                                        : t.trip_day?.split(",")
+                                            .map(day => day.substring(0, 3))
+                                            .join(", ")
+                                    }
+                                </td>
+
                                 <td>₹{t.trip_fare}</td>
                                 <td>
                                     <button

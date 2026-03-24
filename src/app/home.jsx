@@ -846,6 +846,33 @@ function Home() {
                   </button>
                 </div>
               </div>
+              <div className="row align-items-center mt-3">
+                <div className="col-md">
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => {
+
+                    const fullDays = [
+                      "Monday", "Tuesday", "Wednesday",
+                      "Thursday", "Friday", "Saturday", "Sunday"
+                    ];
+
+                    const tripDays = t.trip_day === "Everyday"
+                      ? fullDays
+                      : t.trip_day?.split(",");
+
+                    const isActive = tripDays?.includes(fullDays[index]);
+
+                    return (
+                      <span
+                        key={day}
+                        className={`badge me-1 ${isActive ? "bg-success" : "bg-light text-dark border"}`}
+                      >
+                        {day}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
             </div>
           </div>
         ))}
