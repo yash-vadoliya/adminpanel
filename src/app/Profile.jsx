@@ -74,7 +74,7 @@ function Profile() {
         {
           method: "PUT",
           headers: {
-            Authorization: `Bearer ${token}`,  // ❗ remove content-type
+            Authorization: `Bearer ${token}`,
           },
           body: formDataToSend,
         }

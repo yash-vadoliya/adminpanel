@@ -45,41 +45,6 @@ function Driver() {
     adduid: user?.user_id || "",
   });
 
-  // FETCH DRIVERS
-  // const fetchDrivers = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await fetch(`${CONFIG.API_BASE_URL}/driver`, {
-  //       method: "GET",
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     const data = await res.json();
-  //     console.log(data);
-  //     // Adjust based on your API response structure (usually result.data or result)
-  //     setDrivers(data[0]);
-  //   } catch (err) {
-  //     console.error("Fetch Driver Error:", err);
-  //   }
-  //   setLoading(false);
-  // };
-
-  // FETCH VEHICLES
-  // const fetchVehicles = async () => {
-  //   try {
-  //     const res = await fetch(`${CONFIG.API_BASE_URL}/vehicles`, {
-  //       method: "GET",
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     const data = await res.json();
-  //     // console.log(data);
-  //     setVehicles(data[0]);
-  //   } catch (err) {
-  //     console.error("Fetch Vehicles Error:", err);
-  //   }
-  // };
-
   useEffect(() => {
     fetchDrivers();
     fetchVehicles();

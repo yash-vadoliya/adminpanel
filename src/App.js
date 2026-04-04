@@ -3,7 +3,7 @@ import { Routes, Route, Outlet } from "react-router-dom";
 import "./App.css";
 
 import ROLES from "./Role";
-import { AuthProvider } from "./AuthContext";
+
 import PrivateRoute from "./PrivateRoute";
 
 /* ================= COMPONENTS ================= */
@@ -98,61 +98,61 @@ function App() {
   const Admin = ROLES.ADMIN;
 
   return (
-    <AuthProvider>
-      <Routes>
 
-        {/* ========== PUBLIC ========= */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<SplashHome />} />
-          <Route path="/applogin" element={<Applogin />} />
-          <Route path="/appregister" element={<AppRegister />} />
-        </Route>
+    <Routes>
 
-        {/* ========== USER ========= */}
-        <Route element={<UserLayout />}>
-          <Route path="/home" element={<Home />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/profile" element={<Profile />} />
-        </Route>
+      {/* ========== PUBLIC ========= */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<SplashHome />} />
+        <Route path="/applogin" element={<Applogin />} />
+        <Route path="/appregister" element={<AppRegister />} />
+      </Route>
 
-        {/* ========== ADMIN PUBLIC ========= */}
-        <Route path="/admin" element={<SplashScreen />} />
-        <Route path="/adminlogin" element={<Login />} />
+      {/* ========== USER ========= */}
+      <Route element={<UserLayout />}>
+        <Route path="/home" element={<Home />} />
+        <Route path="/features" element={<Features />} />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
 
-        {/* ========== ADMIN PROTECTED ========= */}
-        <Route
-          element={
-            <AdminLayout
-              isSidebarExpanded={isSidebarExpanded}
-              toggleSidebar={toggleSidebar}
-            />
-          }
-        >
-          <Route path="/dashboard" element={<PrivateRoute><Deshboard /></PrivateRoute>} />
-          <Route path="/adduser" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><AddUser /></PrivateRoute>} />
-          <Route path="/travel" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Travel /></PrivateRoute>} />
-          <Route path="/mapview" element={<PrivateRoute><Mapview /></PrivateRoute>} />
-          <Route path="/geofance" element={<PrivateRoute><Geofance /></PrivateRoute>} />
-          <Route path="/stops" element={<PrivateRoute><Stops /></PrivateRoute>} />
-          <Route path="/routes" element={<PrivateRoute><My_Routes /></PrivateRoute>} />
-          <Route path="/vehicles" element={<PrivateRoute><Vehicles /></PrivateRoute>} />
-          <Route path="/fare" element={<PrivateRoute><Fare /></PrivateRoute>} />
-          <Route path="/trip" element={<PrivateRoute><Trip /></PrivateRoute>} />
-          <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
-          <Route path="/cancel" element={<PrivateRoute><Cencellation /></PrivateRoute>} />
-          <Route path="/cancelreason" element={<PrivateRoute><CancelReason /></PrivateRoute>} />
-          <Route path="/promo" element={<PrivateRoute><Promotion /></PrivateRoute>} />
-          <Route path="/suggestedroutes" element={<PrivateRoute><SuggestedRoutes /></PrivateRoute>} />
-          <Route path="/holiday" element={<PrivateRoute><Holiday /></PrivateRoute>} />
-          <Route path="/customer" element={<PrivateRoute><Customer /></PrivateRoute>} />
-          <Route path="/driver" element={<PrivateRoute><Driver /></PrivateRoute>} />
-          <Route path="/city" element={<PrivateRoute><City /></PrivateRoute>} />
-          <Route path="/deleteaccount" element={<PrivateRoute><DeleteAccount /></PrivateRoute>} />
-          <Route path="/driverdoc" element={<PrivateRoute><DriverDocuments /></PrivateRoute>} />
-        </Route>
+      {/* ========== ADMIN PUBLIC ========= */}
+      <Route path="/admin" element={<SplashScreen />} />
+      <Route path="/adminlogin" element={<Login />} />
 
-      </Routes>
-    </AuthProvider>
+      {/* ========== ADMIN PROTECTED ========= */}
+      <Route
+        element={
+          <AdminLayout
+            isSidebarExpanded={isSidebarExpanded}
+            toggleSidebar={toggleSidebar}
+          />
+        }
+      >
+        <Route path="/dashboard" element={<PrivateRoute><Deshboard /></PrivateRoute>} />
+        <Route path="/adduser" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><AddUser /></PrivateRoute>} />
+        <Route path="/travel" element={<PrivateRoute allowedRoles={[SuperAdmin, Admin]}><Travel /></PrivateRoute>} />
+        <Route path="/mapview" element={<PrivateRoute><Mapview /></PrivateRoute>} />
+        <Route path="/geofance" element={<PrivateRoute><Geofance /></PrivateRoute>} />
+        <Route path="/stops" element={<PrivateRoute><Stops /></PrivateRoute>} />
+        <Route path="/routes" element={<PrivateRoute><My_Routes /></PrivateRoute>} />
+        <Route path="/vehicles" element={<PrivateRoute><Vehicles /></PrivateRoute>} />
+        <Route path="/fare" element={<PrivateRoute><Fare /></PrivateRoute>} />
+        <Route path="/trip" element={<PrivateRoute><Trip /></PrivateRoute>} />
+        <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+        <Route path="/cancel" element={<PrivateRoute><Cencellation /></PrivateRoute>} />
+        <Route path="/cancelreason" element={<PrivateRoute><CancelReason /></PrivateRoute>} />
+        <Route path="/promo" element={<PrivateRoute><Promotion /></PrivateRoute>} />
+        <Route path="/suggestedroutes" element={<PrivateRoute><SuggestedRoutes /></PrivateRoute>} />
+        <Route path="/holiday" element={<PrivateRoute><Holiday /></PrivateRoute>} />
+        <Route path="/customer" element={<PrivateRoute><Customer /></PrivateRoute>} />
+        <Route path="/driver" element={<PrivateRoute><Driver /></PrivateRoute>} />
+        <Route path="/city" element={<PrivateRoute><City /></PrivateRoute>} />
+        <Route path="/deleteaccount" element={<PrivateRoute><DeleteAccount /></PrivateRoute>} />
+        <Route path="/driverdoc" element={<PrivateRoute><DriverDocuments /></PrivateRoute>} />
+      </Route>
+
+    </Routes>
+
   );
 }
 

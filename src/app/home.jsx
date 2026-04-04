@@ -35,21 +35,40 @@ function Home() {
   // const [showPayment, setShowPayment] = useState(false);
   const [passengers, setPassengers] = useState([]);
   const [activeTab, setActiveTab] = useState("route");
-  const [paymentType, setPaymentType] = useState("");
-  const [upiId, setUpiId] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
+  // const [paymentType, setPaymentType] = useState("");
+  // const [upiId, setUpiId] = useState("");
+  // const [cardNumber, setCardNumber] = useState("");
+  // const [expiry, setExpiry] = useState("");
+  // const [cvv, setCvv] = useState("");
   const [showPayment, setShowPayment] = useState(false);
   const [showFromList, setShowFromList] = useState(false);
   const [showToList, setShowToList] = useState(false);
   const [paymentMessage, setPaymentMessage] = useState("");
 
   // hooks 
-  const { city, fetchCity } = useCity();
-  const { route, fetchRoutes, trips, fetchTrips, routestop, fetchRouteStop, thresholds, fetchThreshold, promo, fetchPromo, travel, fetchTravels } = useAll();
-  const { vehicles, fetchVehicles } = useVehicles();
-  const { stops, fetchStops } = useStops();
+  // const { city, fetchCity } = useCity();
+  // const { route, fetchRoutes, trips, fetchTrips, routestop, fetchRouteStop, thresholds, fetchThreshold, promo, fetchPromo, travel, fetchTravels } = useAll();
+  // const { vehicles, fetchVehicles } = useVehicles();
+  // const { stops, fetchStops } = useStops();
+  const { city = [], fetchCity } = useCity();
+  const {
+    route = [],
+    fetchRoutes,
+    trips = [],
+    fetchTrips,
+    routestop = [],
+    fetchRouteStop,
+    thresholds = [],
+    fetchThreshold,
+    promo = [],
+    fetchPromo,
+    travel = [],
+    fetchTravels
+  } = useAll();
+
+  const { vehicles = [], fetchVehicles } = useVehicles();
+  const { stops = [], fetchStops } = useStops();
+
   const { booking, fetchBooking, saveBooking } = useBooking();
 
   // console.log("User Id  : ", user.user_id);
@@ -259,6 +278,41 @@ function Home() {
       )
       .map(rs => Number(rs.route_id));
 
+    // STEP 1: Group stops by route_id
+    const routeStopsMap = {};
+
+    routestop.forEach(rs => {
+      const routeId = Number(rs.route_id);
+
+      if (!routeStopsMap[routeId]) {
+        routeStopsMap[routeId] = [];
+      }
+
+      routeStopsMap[routeId].push(rs);
+    });
+
+
+    // STEP 2: Find valid route_ids based on stop sequence
+    const validRouteIds = Object.keys(routeStopsMap).filter(routeId => {
+      const stopsOfRoute = routeStopsMap[routeId];
+
+      const fromStop = stopsOfRoute.find(
+        s => Number(s.city_id) === Number(from_city.city_id)
+      );
+
+      const toStop = stopsOfRoute.find(
+        s => Number(s.city_id) === Number(to_city.city_id)
+      );
+
+      // Both must exist AND from comes before to
+      return (
+        fromStop &&
+        toStop &&
+        Number(fromStop.stop_order) < Number(toStop.stop_order)
+      );
+    });
+
+
 
     // 🔥 Match routes using city name instead of id
     // const matchedRoutes = route.filter(r => {
@@ -286,10 +340,28 @@ function Home() {
 
       const isStopMatch =
         Number(r.record_status) === 1 &&
-        matchedStopRouteIds.includes(Number(r.route_id));
+        validRouteIds.includes(String(r.route_id));
 
       return isDirectMatch || isStopMatch;
     });
+
+    // const matchedRoutes = route.filter(r => {
+    //   const startCity = city.find(c => Number(c.city_id) === Number(r.start_city_id));
+    //   const endCity = city.find(c => Number(c.city_id) === Number(r.end_city_id));
+
+    //   if (!startCity || !endCity) return false;
+
+    //   const isDirectMatch =
+    //     Number(r.record_status) === 1 &&
+    //     startCity.city_name.toLowerCase() === from.trim().toLowerCase() &&
+    //     endCity.city_name.toLowerCase() === to.trim().toLowerCase();
+
+    //   const isStopMatch =
+    //     Number(r.record_status) === 1 &&
+    //     matchedStopRouteIds.includes(Number(r.route_id));
+
+    //   return isDirectMatch || isStopMatch;
+    // });
 
 
 

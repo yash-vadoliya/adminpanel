@@ -128,3 +128,141 @@ function Login() {
 }
 
 export default Login;
+
+// // Login.jsx - ✅ FIXED for Admin Only
+// import React, { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import CONFIG from "../Config";
+// // import './Login.css'; // Your admin CSS
+
+// function Login() {
+//   const [user_name, setUser_name] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const navigate = useNavigate();
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setLoading(true);
+
+//     try {
+//       // ✅ ADMIN LOGIN ENDPOINT
+//       const res = await fetch(`${CONFIG.API_BASE_URL}/login`, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ user_name, password }),
+//       });
+
+//       const data = await res.json();
+//       console.log("👨‍💼 ADMIN Login response:", data);
+
+//       // Login.jsx - ✅ ADD THESE 8 LINES after token save
+//       if (data.token) {
+//         localStorage.setItem("adminToken", data.token);
+//         localStorage.setItem("token", data.token);
+
+//         // ✅ LOAD ADMIN DATA
+//         try {
+//           const dataRes = await fetch(`${CONFIG.API_BASE_URL}/admin/data`, {
+//             headers: { 'Authorization': `Bearer ${data.token}` }
+//           });
+//           const adminData = await dataRes.json();
+//           console.log('👨‍💼 ADMIN DATA LOADED:', adminData);
+//         } catch (err) {
+//           console.log('⚠️ Admin data optional');
+//         }
+
+//         // Trigger global login event
+//         window.dispatchEvent(new CustomEvent('adminLogin', { detail: data.token }));
+//         console.log('👨‍💼 Admin login successful');
+//         navigate("/dashboard");
+//       } else {
+//         alert(data.error || "Admin login failed");
+//       }
+//     } catch (err) {
+//       console.error("Admin login error:", err);
+//       alert("Admin login failed - check connection");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="container d-flex justify-content-center align-items-center vh-100">
+//       <div
+//         className="card shadow-lg"
+//         style={{ width: "30rem", justifyContent: "center", height: "32rem" }}
+//       >
+//         <div className="card-body">
+//           <h5 className="card-title text-center fs-1">👨‍💼 Admin Panel</h5>
+//           <p className="text-center text-muted">
+//             Admin Login Only
+//           </p>
+//           <hr />
+
+//           <form onSubmit={handleSubmit}>
+//             {/* Username */}
+//             <div className="mb-3">
+//               <label className="form-label">Admin Username</label>
+//               <div className="input-group">
+//                 <span className="input-group-text">
+//                   <i className="bi bi-person"></i>
+//                 </span>
+//                 <input
+//                   type="text"
+//                   className="form-control"
+//                   placeholder="Enter Admin Username"
+//                   value={user_name}
+//                   onChange={(e) => setUser_name(e.target.value)}
+//                   required
+//                   disabled={loading}
+//                 />
+//               </div>
+//             </div>
+
+//             {/* Password */}
+//             <div className="mb-3">
+//               <label className="form-label">Admin Password</label>
+//               <div className="input-group">
+//                 <span className="input-group-text">
+//                   <i className="bi bi-lock"></i>
+//                 </span>
+//                 <input
+//                   type={showPassword ? "text" : "password"}
+//                   className="form-control"
+//                   placeholder="Enter Admin Password"
+//                   value={password}
+//                   onChange={(e) => setPassword(e.target.value)}
+//                   required
+//                   disabled={loading}
+//                 />
+//                 <button
+//                   type="button"
+//                   className="btn btn-outline-secondary"
+//                   onClick={() => setShowPassword(!showPassword)}
+//                   disabled={loading}
+//                 >
+//                   <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+//                 </button>
+//               </div>
+//             </div>
+
+//             {/* Submit Button */}
+//             <div className="d-grid gap-2 pt-3">
+//               <button
+//                 type="submit"
+//                 className="btn btn-danger"
+//                 disabled={loading}
+//               >
+//                 {loading ? "Logging in..." : "Admin Login"}
+//               </button>
+//             </div>
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default Login;
